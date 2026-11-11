@@ -1,0 +1,111 @@
+.log {
+  display: grid;
+  gap: 8px;
+}
+.list {
+  min-height: calc(var(--line) * 6);
+}
+.item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: var(--line);
+}
+.glyph {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin-left: -4px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ink);
+}
+.glyph:hover:not(:disabled) {
+  background: rgba(28, 35, 51, 0.08);
+}
+.glyph:disabled {
+  opacity: 1;
+  cursor: default;
+}
+.text {
+  flex: 1;
+  min-width: 0;
+  height: calc(var(--line) - 4px);
+  background: transparent;
+  border: 0;
+  outline: none;
+  font-size: 1rem;
+  color: var(--ink);
+}
+.item[data-state="done"] .text {
+  color: var(--ink-2);
+}
+.item[data-state="cancelled"] .text {
+  color: var(--ink-3);
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+}
+.item[data-state="migrated"] .text {
+  color: var(--ink-2);
+  font-style: italic;
+}
+.item[data-kind="event"] .text {
+  font-weight: 500;
+}
+.item[data-kind="note"] .text {
+  font-family: var(--font-fell);
+  font-size: 1.06rem;
+}
+.del {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ink-3);
+  opacity: 0;
+  transition: opacity 120ms;
+}
+.del svg {
+  width: 16px;
+  height: 16px;
+}
+.item:hover .del,
+.item:focus-within .del {
+  opacity: 1;
+}
+.del:hover {
+  color: var(--vermilion);
+  background: rgba(168, 50, 31, 0.08);
+}
+@media (hover: none) {
+  .del {
+    opacity: 0.55;
+  }
+}
+.new .text::placeholder {
+  font-style: italic;
+}
+.key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+}
+.key span {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+.key svg {
+  width: 16px;
+  height: 16px;
+  color: var(--ink-2);
+}

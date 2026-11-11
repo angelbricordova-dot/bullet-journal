@@ -1,0 +1,100 @@
+.verse {
+  margin: 22px 0 10px;
+  padding-left: 18px;
+  border-left: 1px solid var(--vermilion);
+}
+.verse blockquote {
+  font-size: clamp(1.35rem, 1.1rem + 0.9vw, 1.75rem);
+  line-height: 1.38;
+  color: var(--ink);
+  max-width: 34ch;
+  text-wrap: pretty;
+}
+.verse figcaption {
+  margin-top: 12px;
+  color: var(--vermilion);
+  font-size: 1.05rem;
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+.readings {
+  display: grid;
+}
+.readings li {
+  display: grid;
+  grid-template-columns: 60px 1fr;
+  gap: 8px;
+  min-height: var(--line);
+  align-items: center;
+  border-bottom: 1px solid color-mix(in oklab, var(--paper-edge) 70%, transparent);
+}
+.title {
+  font-family: var(--font-engraved);
+  font-size: clamp(1.9rem, 1.4rem + 1.6vw, 2.6rem);
+  line-height: 1;
+}
+.lede {
+  margin: 10px 0 16px;
+  color: var(--ink-2);
+  max-width: 50ch;
+}
+.add {
+  display: flex;
+  gap: 8px;
+}
+.add :global(.box-input) {
+  flex: 1;
+  min-width: 0;
+}
+.add :global(.ink-btn) {
+  height: 40px;
+}
+.prayers {
+  display: grid;
+  margin-top: 14px;
+}
+.prayers > li {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--paper-edge);
+  display: grid;
+  gap: 8px;
+}
+.pRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+.pText {
+  font-size: 1rem;
+  color: var(--ink);
+}
+.pActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.pActions :global(.ink-btn) {
+  height: 32px;
+  font-size: 0.875rem;
+}
+.answered {
+  display: grid;
+  gap: 2px;
+}
+.answered li {
+  display: grid;
+  gap: 4px;
+  padding: 12px 0;
+  border-bottom: 1px solid color-mix(in oklab, var(--paper-edge) 70%, transparent);
+}
+.miniStamp {
+  justify-self: start;
+  font-size: 0.7rem;
+  padding: 1px 6px 0;
+  border-width: 1.5px;
+}
