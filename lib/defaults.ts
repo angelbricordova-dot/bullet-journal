@@ -1,4 +1,4 @@
-import type { Challenge, DayDoc, MoneyDoc, Settings } from "./types";
+import type { Challenge, DayDoc, Settings } from "./types";
 
 export const START_DATE = "2026-11-11";
 
@@ -68,14 +68,6 @@ export const DEFAULT_CHALLENGES: Challenge[] = [
     wins: [],
   },
 ];
-
-export const DEFAULT_MONEY: MoneyDoc = {
-  opening: 180,
-  openingDate: START_DATE,
-  txns: [],
-  clients: [],
-  goal: { name: "Fondo de emergencia", amount: 500, saved: 0 },
-};
 
 export const SOS_ACTIONS = [
   "Levántate y sal del cuarto ahora mismo.",

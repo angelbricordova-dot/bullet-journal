@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import { BookApp } from "@/components/BookApp";
 
 export default function Home() {
-  redirect("/hoy");
+  return <BookApp />;
 }

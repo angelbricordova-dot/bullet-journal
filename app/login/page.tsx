@@ -26,7 +26,7 @@ export default function LoginPage() {
       if (res.ok) {
         setState("open");
         const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        setTimeout(() => router.replace("/hoy"), reduce ? 0 : 1100);
+        setTimeout(() => router.replace("/"), reduce ? 0 : 1100);
         return;
       }
       const j = await res.json().catch(() => ({}));

@@ -19,9 +19,11 @@ The notebook is a leather-bound field journal lying open on a dark desk under a 
 
 ## Structure
 
-- Desktop ≥960px: open two-page spread (`.spread` → `.page.left` / `.page.right`), spine shadow, silk ribbon in the gutter, leather index tabs on the right edge (icons; labels slide out on hover/focus), brass corners, cover bar with sync state and "Momento difícil".
-- Phone: one page; header strip on the leather with the day count and "Momento difícil"; leather tab strip at the bottom. Left and right pages stack.
-- Lienzo uses the whole spread (`.spread.full`) with Excalidraw on paper.
+- Desktop: a CSS 3D ring binder on the desk (`components/book/Book3D.tsx`). Each sheet is a leaf with two faces (front = right page of spread *j*, back = left page of spread *j+1*); the front cover's inside carries spread 0's left page; the last right page is glued to the back cover. Leaves turn around the spine (850ms, staggered 70ms when jumping). Six brass rings float above the spine. Index tabs live on their leaves, so they move to the left side as pages turn.
+- The desk: brass "now" plate (month, days left, day of year) top-left; tools column left (pen/marker/eraser + inks, sticker sheets, tape rolls, photo); sync + "Momento difícil" top-right; control bar bottom. Drag the desk to rotate (rx −5…60°, ry ±55°), wheel to zoom; pen mode squares the view to frontal.
+- Only the two faces in view are interactive (`inert` + `pointer-events`); 3D containers are pointer-transparent.
+- Phone: one page at a time on a leather ground, header with month and days left, brass FAB for tools, bottom nav (Hoy, Mes, Trackers, Retos, Fe, Más).
+- Decorations (`components/book/Deco.tsx`) are stored per page in `deco:<page-id>`, normalised by page width so desktop and phone agree.
 
 ## Components
 
@@ -34,6 +36,6 @@ The notebook is a leather-bound field journal lying open on a dark desk under a 
 
 ## Motion
 
-- Page turn between sections: a paper sheet rotates around the spine (620ms, ease-in-out), content inks in beneath.
+- Page turn: real leaves rotate around the spine; dragging the outer edge turns a page by hand and it completes past 90° or on a flick.
 - Login: the cover swings open (1s) to the first page.
 - Stamps land with an expo ease-out. Everything collapses to instant under `prefers-reduced-motion`.

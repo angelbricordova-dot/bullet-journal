@@ -10,6 +10,7 @@ import { VERSES, verseForDay, type Verse } from "@/lib/verses";
 import { pickRandom } from "@/lib/random";
 import { addDays, shortDate, todayYmd, uid } from "@/lib/date";
 import type { DayDoc } from "@/lib/types";
+import { useShared } from "@/lib/shared";
 import styles from "./fe.module.css";
 
 const THEMES: { tag: Verse["tags"][number]; label: string }[] = [
@@ -21,13 +22,13 @@ const THEMES: { tag: Verse["tags"][number]; label: string }[] = [
   { tag: "dinero", label: "Dinero" },
 ];
 
-export default function FePage() {
+export function FeSpread() {
   const today = todayYmd();
   const [theme, setTheme] = useState<Verse["tags"][number] | null>(null);
   const [pick, setPick] = useState<Verse | null>(null);
   const [prayers, setPrayers] = usePrayers();
   const [draft, setDraft] = useState("");
-  const [answering, setAnswering] = useState<string | null>(null);
+  const [answering, setAnswering] = useShared<string | null>("fe:answering", null);
   const [answer, setAnswer] = useState("");
   const { items: days } = useDocList<DayDoc>("day:");
 
@@ -171,5 +172,5 @@ export default function FePage() {
     </div>
   );
 
-  return <Pages left={left} right={right} />;
+  return <Pages id="fe" left={left} right={right} />;
 }

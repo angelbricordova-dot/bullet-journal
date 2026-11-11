@@ -1,21 +1,33 @@
 # Bitácora
 
-Diario personal estilo bullet journal: retos, hábitos, fe, dinero, progreso día a día y un lienzo libre para dibujar. Privado, protegido con contraseña, hecho para Vercel.
+Bullet journal personal en 3D: retos, hábitos, fe, trackers, resumen mensual y espacio para escribir, dibujar y pegar en cualquier página. Privado, protegido con contraseña, hecho para Vercel.
+
+## Cómo es
+
+Un cuaderno de cuero con anillas de latón, en 3D. En PC:
+
+- La **portada** siempre muestra el mes, los días que quedan y el día del año. Tócala para abrir.
+- **Pasa las hojas** arrastrando la esquina, con las pestañas de cada hoja, con las flechas del teclado o con los botones de abajo.
+- **Arrastra el escritorio** para girar el cuaderno y usa la **rueda** para acercar o alejar. "Vista" lo endereza.
+- A la izquierda están las **herramientas**: pluma, marcador y borrador para escribir o dibujar sobre cualquier página; hojas de **pegatinas**; rollos de **cinta** (kraft, negra, tela roja, lino) y **fotos** pegadas con cinta. Todo se arrastra a cualquier página o a la portada, se mueve, se gira, se agranda y se despega.
+
+En el teléfono es una página a la vez, con las mismas secciones y las herramientas en el botón de latón.
 
 ## Secciones
 
-| Sección | Qué hace |
+| Hoja | Qué tiene |
 |---|---|
-| **Hoy** | Registro rápido (tareas, eventos, notas), hábitos con la semana, sueño, ánimo, gratitud, lectura bíblica, pegatinas y cuenta regresiva de fechas importantes. |
-| **Retos** | Rachas con marcas de conteo. "Dejar algo" (pureza) cuenta días y horas; si caes, lo registras con reflexión y vuelve a empezar. "Cumplir un hábito" cuenta días seguidos. |
-| **Momento difícil** | Botón siempre visible: versículo, tus razones, acciones inmediatas, temporizador de 10 minutos y "Vencí esta tentación". |
-| **Progreso** | Tu año en cuadritos y estadísticas por hábito (racha, mejor racha, % de 30 días), sueño y ánimo promedio. |
-| **Fe** | Versículo del día (RVR1960), versículos por tema, diario de oración con peticiones respondidas. |
-| **Dinero** | Saldo, cuánto puedes gastar por día hasta el próximo cobro, libro de entradas/salidas, clientes y fondo de emergencia. |
-| **Lienzo** | Tableros libres tipo pizarra (Excalidraw) para dibujar, escribir y pegar imágenes. |
-| **Ajustes** | Color del cuero, tipo de papel, hábitos, razones, fechas, copia de seguridad y cerrar sesión. |
+| **Índice** | Dentro de la portada: a quién pertenece, el mes, los días que quedan, el año y el índice. |
+| **Hoy** | Registro rápido (tareas, eventos, notas), hábitos con la semana, sueño, ánimo, gratitud, lectura bíblica y fechas importantes. |
+| **Mes** | "Bienvenido noviembre", metas del mes y calendario donde escribes en cada día. |
+| **Trackers** | Hábitos con puntos por día (se marcan ahí mismo), gráfica de sueño, ánimo y hora de despertar. |
+| **Retos** | Rachas con marcas de conteo, caídas con reflexión y victorias. |
+| **Fe** | Versículo del día (RVR1960), versículos por tema y diario de oración. |
+| **Libros** | Lista de lecturas y una hoja libre. |
+| **Resumen** | El mes en números y tus datos exportados de **Real** (CSV o JSON). |
+| **Ajustes** | Color del cuero, papel, hábitos, razones, fechas y copia de seguridad. |
 
-Atajos en PC: `Alt+1` … `Alt+7` cambian de sección.
+**Momento difícil** está siempre arriba a la derecha: versículo, tus razones, acciones y temporizador de 10 minutos.
 
 ## Publicar en Vercel
 

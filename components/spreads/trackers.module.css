@@ -1,0 +1,138 @@
+.sub {
+  font-size: 0.55em;
+  color: var(--vermilion);
+  text-transform: capitalize;
+}
+.dotGridWrap {
+  overflow-x: auto;
+  margin: 0 -4px;
+  padding: 0 4px 6px;
+}
+.dotGrid {
+  display: grid;
+  align-items: center;
+  row-gap: 2px;
+  min-width: 380px;
+}
+.colHead {
+  font-size: 0.625rem;
+  color: var(--ink-3);
+  text-align: center;
+  height: 16px;
+}
+.colHead[data-today] {
+  color: var(--vermilion);
+  font-weight: 700;
+}
+.rowName {
+  font-size: 0.75rem;
+  line-height: 1.15;
+  padding-right: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid color-mix(in oklab, var(--paper-edge) 60%, transparent);
+}
+.dotCell {
+  height: 22px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  border-bottom: 1px solid color-mix(in oklab, var(--paper-edge) 60%, transparent);
+}
+.dotCell i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: color-mix(in oklab, var(--ink) 18%, transparent);
+  transition: transform 140ms var(--ease-out), background-color 140ms;
+}
+.dotCell:hover:not(:disabled) i {
+  transform: scale(1.5);
+}
+.dotCell[data-on] i {
+  width: 8px;
+  height: 8px;
+  background: var(--ink);
+}
+.dotCell[data-today] {
+  background: rgba(168, 50, 31, 0.08);
+}
+.dotCell:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.totals {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px 16px;
+  font-size: 0.8125rem;
+}
+.totals li {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  border-bottom: 1px dotted color-mix(in oklab, var(--ink) 25%, transparent);
+  padding: 3px 0;
+}
+.totals b {
+  font-weight: 600;
+}
+.avg {
+  margin: 8px 0 10px;
+  font-size: 0.9375rem;
+}
+.avg b {
+  font-weight: 600;
+}
+.chart {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.moods,
+.wake {
+  display: grid;
+  gap: 2px;
+}
+.moods i {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 1px solid color-mix(in oklab, var(--ink) 25%, transparent);
+}
+.moodKey {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  font-size: 0.6875rem;
+  color: var(--ink-3);
+}
+.moodKey i {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 1px solid color-mix(in oklab, var(--ink) 25%, transparent);
+}
+.moods i[data-m="1"], .moodKey i[data-m="1"] { background: color-mix(in oklab, var(--vermilion) 75%, transparent); border-color: transparent; }
+.moods i[data-m="2"], .moodKey i[data-m="2"] { background: color-mix(in oklab, var(--vermilion) 35%, transparent); border-color: transparent; }
+.moods i[data-m="3"], .moodKey i[data-m="3"] { background: color-mix(in oklab, var(--ink) 25%, transparent); border-color: transparent; }
+.moods i[data-m="4"], .moodKey i[data-m="4"] { background: color-mix(in oklab, var(--ink) 60%, transparent); border-color: transparent; }
+.moods i[data-m="5"], .moodKey i[data-m="5"] { background: var(--ink); border-color: transparent; }
+.wake i {
+  height: 12px;
+  border-radius: 1px;
+  background: color-mix(in oklab, var(--ink) 8%, transparent);
+}
+.wake i[data-ok] {
+  background: var(--ink);
+}
+.wake i[data-late] {
+  background: color-mix(in oklab, var(--vermilion) 55%, transparent);
+}

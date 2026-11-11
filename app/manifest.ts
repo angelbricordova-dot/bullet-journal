@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "Bitácora",
     short_name: "Bitácora",
     description: "Diario personal: retos, hábitos, fe y progreso.",
-    start_url: "/hoy",
+    start_url: "/",
     display: "standalone",
     background_color: "#15100c",
     theme_color: "#15100c",

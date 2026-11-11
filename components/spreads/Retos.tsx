@@ -12,13 +12,14 @@ import { challengeBest, challengeDays, abstainNow } from "@/lib/streaks";
 import { VERSES } from "@/lib/verses";
 import { shortDate, todayYmd, uid, ymd } from "@/lib/date";
 import type { Challenge, DayDoc } from "@/lib/types";
+import { useShared } from "@/lib/shared";
 import styles from "./retos.module.css";
 
 const TRIGGERS = ["Celular en la cama", "Aburrimiento", "Soledad", "Desvelo", "Ansiedad o estrés", "Redes sociales", "Cansancio"];
 const RISE = VERSES.find((v) => v.ref === "Proverbios 24:16")!;
 const CLEAN = VERSES.find((v) => v.ref === "1 Juan 1:9")!;
 
-export default function RetosPage() {
+export function RetosSpread() {
   const [challenges, setChallenges] = useChallenges();
   const [settings] = useSettings();
   const { items: days } = useDocList<DayDoc>("day:");
@@ -26,7 +27,7 @@ export default function RetosPage() {
   const [todayDoc, setTodayDoc] = useDay(today);
   const [, tick] = useState(0);
   const active = challenges.filter((c) => !c.archived);
-  const [selId, setSelId] = useState<string | null>(null);
+  const [selId, setSelId] = useShared<string | null>("retos:sel", null);
   const sel = active.find((c) => c.id === selId) ?? active[0];
 
   // live clock for the abstinence counters
@@ -103,7 +104,7 @@ export default function RetosPage() {
     <p className="caption">Crea tu primer reto en la página de la izquierda.</p>
   );
 
-  return <Pages left={left} right={right} />;
+  return <Pages id="retos" left={left} right={right} />;
 }
 
 function ChallengeDetail({

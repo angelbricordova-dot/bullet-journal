@@ -22,7 +22,7 @@ const PAPERS: { id: PaperStyle; label: string }[] = [
   { id: "plain", label: "Liso" },
 ];
 
-export default function AjustesPage() {
+export function AjustesSpread() {
   const [s, setS] = useSettings();
   const [msg, setMsg] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
@@ -185,7 +185,7 @@ export default function AjustesPage() {
     </div>
   );
 
-  return <Pages left={left} right={right} />;
+  return <Pages id="ajustes" left={left} right={right} />;
 }
 
 function swap<T>(l: T[], a: number, b: number): T[] {

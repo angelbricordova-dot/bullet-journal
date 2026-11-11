@@ -1,0 +1,370 @@
+/* ================================================================
+   The 3D ring-bound leather notebook
+   ================================================================ */
+
+.scene {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  perspective: 2600px;
+  perspective-origin: 50% 40%;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.face :global(.page-content) {
+  user-select: text;
+  -webkit-user-select: text;
+}
+.scene:active {
+  cursor: grabbing;
+}
+.pos {
+  transform-style: preserve-3d;
+  transition: transform 900ms var(--ease-page);
+}
+.book {
+  position: relative;
+  transform-style: preserve-3d;
+  cursor: default;
+}
+
+/* leather */
+.backCover,
+.coverOut,
+.coverIn,
+.spine {
+  background:
+    radial-gradient(140% 90% at 30% 10%, var(--leather-hi), transparent 60%),
+    linear-gradient(160deg, var(--leather) 0%, var(--leather-lo) 100%);
+}
+.backCover {
+  position: absolute;
+  left: calc(var(--pw) - 10px);
+  top: calc(-1 * var(--m));
+  width: calc(var(--pw) + var(--m) + 10px);
+  height: calc(var(--ph) + 2 * var(--m));
+  border-radius: 3px 10px 10px 3px;
+  transform: translateZ(-3px);
+  box-shadow:
+    0 2px 0 rgba(255, 255, 255, 0.05) inset,
+    0 40px 70px -14px rgba(0, 0, 0, 0.8),
+    0 14px 24px -8px rgba(0, 0, 0, 0.6);
+}
+.spine {
+  position: absolute;
+  left: calc(var(--pw) - 16px);
+  top: calc(-1 * var(--m));
+  width: 32px;
+  height: calc(var(--ph) + 2 * var(--m));
+  transform: translateZ(-2px);
+  box-shadow: inset 0 0 0 999px rgba(0, 0, 0, 0.25), inset 6px 0 8px -4px rgba(0, 0, 0, 0.6), inset -6px 0 8px -4px rgba(0, 0, 0, 0.6);
+}
+
+/* paper */
+.base,
+.leftStack {
+  position: absolute;
+  top: 0;
+  width: var(--pw);
+  height: var(--ph);
+  background: var(--paper-2);
+}
+.base {
+  left: var(--pw);
+  border-radius: 0 4px 4px 0;
+  transform-style: preserve-3d;
+  transform: translateZ(0);
+}
+.leftStack {
+  left: 0;
+  border-radius: 4px 0 0 4px;
+  transform: translateZ(0);
+}
+.leaf {
+  position: absolute;
+  left: var(--pw);
+  top: 0;
+  width: var(--pw);
+  height: var(--ph);
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  transition: transform 850ms var(--ease-page);
+}
+.face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--paper);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  overflow: hidden;
+}
+.front {
+  border-radius: 0 4px 4px 0;
+  background-image: linear-gradient(to right, rgba(60, 40, 10, 0.2), transparent 6%), linear-gradient(to left, rgba(60, 40, 10, 0.06), transparent 3%);
+}
+.back {
+  transform: rotateY(180deg);
+  border-radius: 4px 0 0 4px;
+  background-image: linear-gradient(to left, rgba(60, 40, 10, 0.2), transparent 6%), linear-gradient(to right, rgba(60, 40, 10, 0.06), transparent 3%);
+}
+/* a page that is turning gets a moving shadow */
+.leaf .face::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(to right, rgba(40, 25, 5, 0.18), transparent 60%);
+  opacity: 0;
+  transition: opacity 425ms var(--ease-page);
+}
+.front :global(.page-scroll) {
+  padding-left: 48px;
+  padding-right: 34px;
+}
+.back :global(.page-scroll) {
+  padding-left: 34px;
+  padding-right: 48px;
+}
+.blank {
+  flex: 1;
+}
+.holes {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 12px;
+  pointer-events: none;
+  z-index: 1;
+}
+.front .holes {
+  left: 10px;
+}
+.back .holes {
+  right: 10px;
+}
+.holes i {
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 60%, #2a1c12 0 45%, #5b4632 60%, transparent 70%);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.6);
+}
+.holes i:nth-child(1) { top: calc(9% - 5px); }
+.holes i:nth-child(2) { top: calc(25.4% - 5px); }
+.holes i:nth-child(3) { top: calc(41.8% - 5px); }
+.holes i:nth-child(4) { top: calc(58.2% - 5px); }
+.holes i:nth-child(5) { top: calc(74.6% - 5px); }
+.holes i:nth-child(6) { top: calc(91% - 5px); }
+.folio {
+  position: absolute;
+  bottom: 10px;
+  font-size: 0.6875rem;
+  color: var(--ink-3);
+  pointer-events: none;
+}
+.front .folio {
+  right: 16px;
+}
+.back .folio {
+  left: 16px;
+}
+
+/* front cover */
+.cover {
+  position: absolute;
+  left: calc(var(--pw) - 10px);
+  top: calc(-1 * var(--m));
+  width: calc(var(--pw) + var(--m) + 10px);
+  height: calc(var(--ph) + 2 * var(--m));
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  transition: transform 1000ms var(--ease-page);
+}
+.coverOut,
+.coverIn {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 3px 10px 10px 3px;
+  box-shadow:
+    inset 6px 0 10px -4px rgba(0, 0, 0, 0.55),
+    inset 0 2px 0 rgba(255, 255, 255, 0.06),
+    0 2px 0 rgba(0, 0, 0, 0.4);
+}
+.coverIn {
+  transform: rotateY(180deg);
+  border-radius: 10px 3px 3px 10px;
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.22), rgba(0, 0, 0, 0.22)),
+    linear-gradient(160deg, var(--leather) 0%, var(--leather-lo) 100%);
+}
+.coverInPaper {
+  position: absolute;
+  top: var(--m);
+  bottom: var(--m);
+  left: var(--m);
+  right: 10px;
+}
+.coverInPaper .face {
+  transform: none;
+  border-radius: 4px 0 0 4px;
+  box-shadow: -3px 0 0 #ddd2b8, -5px 1px 0 #cbbd9d, -8px 6px 14px rgba(0, 0, 0, 0.3);
+}
+
+/* brass rings */
+.rings {
+  position: absolute;
+  left: var(--pw);
+  top: 0;
+  transform-style: preserve-3d;
+  transform: translateZ(14px);
+  pointer-events: none;
+}
+.ring {
+  position: absolute;
+  left: 0;
+  width: 46px;
+  height: 12px;
+  transform: translate(-50%, -50%);
+  border-radius: 7px;
+  background: linear-gradient(180deg, #f2dca4 0%, var(--brass) 45%, #7a5d30 85%, #5b4422 100%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.5) inset,
+    0 4px 6px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(70, 50, 20, 0.45);
+}
+.ring i {
+  position: absolute;
+  inset: 3px 6px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.35), transparent 60%);
+}
+.book[data-closed] .rings {
+  opacity: 0;
+}
+
+/* index tabs: each sits on its own leaf, so they travel with the pages */
+.tab {
+  position: absolute;
+  right: -30px;
+  top: calc(18px + var(--i) * (var(--tab-h) + 4px));
+  width: 30px;
+  height: var(--tab-h);
+  display: grid;
+  place-items: center;
+  padding: 0 0 0 2px;
+  border: 0;
+  border-radius: 0 7px 7px 0;
+  background: linear-gradient(to right, var(--leather-lo), var(--leather) 45%, var(--leather-hi));
+  color: var(--leather-ink);
+  font-family: var(--font-engraved);
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  writing-mode: vertical-rl;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.35);
+  transition: background-color 160ms, color 160ms;
+}
+.tab:hover {
+  color: #fff3dc;
+  filter: brightness(1.12);
+}
+.tab[aria-current="page"] {
+  background: linear-gradient(to right, var(--paper-2), var(--paper));
+  color: var(--ink);
+}
+.tabBack {
+  transform: rotateY(180deg);
+  border-radius: 7px 0 0 7px;
+}
+
+/* corner grab zones for turning pages by hand */
+.grab {
+  position: absolute;
+  top: 0;
+  width: 34px;
+  height: var(--ph);
+  transform: translateZ(30px);
+  cursor: grab;
+  touch-action: none;
+}
+.grab::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  width: 34px;
+  height: 34px;
+  opacity: 0;
+  transition: opacity 200ms;
+}
+.grabR {
+  left: calc(2 * var(--pw) - 34px);
+}
+.grabR::after {
+  right: 0;
+  background: linear-gradient(135deg, transparent 50%, rgba(60, 40, 10, 0.18) 50%, #efe6d0 62%);
+  border-radius: 0 0 4px 0;
+}
+.grabL {
+  left: 0;
+}
+.grabL::after {
+  left: 0;
+  background: linear-gradient(225deg, transparent 50%, rgba(60, 40, 10, 0.18) 50%, #efe6d0 62%);
+  border-radius: 0 0 0 4px;
+}
+.grab:hover::after {
+  opacity: 1;
+}
+
+.ribbon {
+  position: absolute;
+  top: -10px;
+  left: calc(var(--pw) + 34px);
+  width: 14px;
+  height: calc(var(--ph) + 48px);
+  transform: translateZ(9px);
+  pointer-events: none;
+  background:
+    linear-gradient(to right, rgba(0, 0, 0, 0.25), transparent 30%, rgba(255, 255, 255, 0.14) 50%, transparent 70%, rgba(0, 0, 0, 0.25)),
+    var(--ribbon);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 8px), 0 100%);
+  opacity: 0.95;
+}
+.book[data-closed] .ribbon {
+  left: calc(var(--pw) * 1.72);
+  transform: translateZ(-1px);
+}
+
+/* only the two pages in view take clicks; hidden faces never steal them */
+.face[inert] {
+  pointer-events: none;
+}
+.cover[data-open-past] {
+  pointer-events: none;
+}
+.cover[data-open-past] .tab {
+  pointer-events: auto;
+}
+/* the 3D containers themselves are transparent to the pointer */
+.leaf,
+.cover,
+.base,
+.coverIn,
+.coverInPaper {
+  pointer-events: none;
+}
+.face:not([inert]),
+.tab,
+.coverOut:not([inert]) {
+  pointer-events: auto;
+}

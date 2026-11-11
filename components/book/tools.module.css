@@ -1,0 +1,177 @@
+.panel {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+.card {
+  background: #f6f0e1;
+  border-radius: 10px;
+  padding: 12px;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.6) inset, 0 10px 24px -8px rgba(0, 0, 0, 0.55), 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+.h {
+  font-family: var(--font-engraved);
+  font-size: 1rem;
+  margin-bottom: 8px;
+}
+.note {
+  margin-top: 8px;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: var(--ink-3);
+}
+.tools {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+.tool {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: 7px 2px 5px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ink-2);
+  font-size: 0.625rem;
+  line-height: 1.1;
+}
+.tool svg {
+  width: 19px;
+  height: 19px;
+}
+.tool:hover {
+  background: rgba(28, 35, 51, 0.07);
+}
+.tool[aria-checked="true"] {
+  background: var(--ink);
+  color: var(--paper);
+}
+.inks {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.ink {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid #f6f0e1;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25);
+}
+.ink[aria-checked="true"] {
+  box-shadow: 0 0 0 2px var(--ink);
+}
+.sheetCard {
+  padding-top: 8px;
+}
+.sheetTabs {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--paper-edge);
+}
+.sheetTabs button {
+  flex: 1;
+  padding: 6px 2px;
+  border: 0;
+  background: transparent;
+  font-family: var(--font-engraved);
+  font-size: 0.85rem;
+  color: var(--ink-3);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+.sheetTabs button[aria-selected="true"] {
+  color: var(--ink);
+  border-bottom-color: var(--vermilion);
+}
+.stickers {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+}
+.sticker {
+  display: grid;
+  place-items: center;
+  min-height: 58px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  cursor: grab;
+  touch-action: none;
+  transition: transform 140ms var(--ease-out), background-color 140ms;
+}
+.sticker:hover {
+  background: rgba(28, 35, 51, 0.05);
+  transform: rotate(-3deg) scale(1.06);
+}
+.sticker:active {
+  cursor: grabbing;
+}
+.sticker svg {
+  width: 40px;
+  height: 40px;
+}
+.sticker :global(.stamp) {
+  font-size: 0.66rem;
+  padding: 2px 5px 1px;
+  border-width: 1.5px;
+}
+.rolls {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+.roll {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: 4px 0 2px;
+  border: 0;
+  background: transparent;
+  cursor: grab;
+  touch-action: none;
+}
+.rollBody {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3), inset 0 0 0 1px rgba(0, 0, 0, 0.15);
+}
+.rollBody i {
+  position: absolute;
+  inset: 11px;
+  border-radius: 50%;
+  background: #f6f0e1;
+  box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.3);
+}
+.rollTail {
+  position: absolute;
+  top: 26px;
+  left: calc(50% + 6px);
+  width: 14px;
+  height: 22px;
+  clip-path: polygon(0 0, 100% 0, 100% 80%, 75% 100%, 50% 85%, 25% 100%, 0 82%);
+  transform: rotate(-12deg);
+}
+.roll[data-style="kraft"] .rollBody,
+.roll[data-style="kraft"] .rollTail { background: #b88a55; }
+.roll[data-style="black"] .rollBody,
+.roll[data-style="black"] .rollTail { background: #1f1d1c; }
+.roll[data-style="red"] .rollBody,
+.roll[data-style="red"] .rollTail { background: #8e2219; }
+.roll[data-style="linen"] .rollBody,
+.roll[data-style="linen"] .rollTail { background: #e0d5bb; }
+.rollLabel {
+  margin-top: 6px;
+  font-size: 0.6875rem;
+  color: var(--ink-2);
+}
+.roll:hover .rollBody {
+  transform: rotate(-20deg);
+  transition: transform 300ms var(--ease-out);
+}

@@ -1,12 +1,9 @@
 "use client";
 
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
 import { Pages } from "@/components/Pages";
 import { RapidLog } from "@/components/RapidLog";
-import { StickerLayer, StickerTray, newSticker } from "@/components/Stickers";
 import { HabitCheck } from "@/components/HabitCheck";
 import { Figs } from "@/components/Figs";
 import { useDay, useSettings } from "@/lib/hooks";
@@ -15,16 +12,14 @@ import { emptyDay } from "@/lib/defaults";
 import { verseForDay } from "@/lib/verses";
 import { addDays, daysBetween, longDate, nextOccurrence, parseYmd, todayYmd, uid, weekday } from "@/lib/date";
 import type { Bullet, DayDoc } from "@/lib/types";
+import { setBookDate, useBookDate } from "@/lib/book";
 import styles from "./hoy.module.css";
 
 const MOODS = ["Muy mal", "Mal", "Normal", "Bien", "Muy bien"];
 
-export function HoyClient() {
-  const params = useSearchParams();
-  const router = useRouter();
+export function HoySpread() {
   const today = todayYmd();
-  const raw = params.get("d");
-  const date = raw && /^\d{4}-\d{2}-\d{2}$/.test(raw) ? raw : today;
+  const [date] = useBookDate();
   const isToday = date === today;
 
   const [settings] = useSettings();
@@ -49,7 +44,7 @@ export function HoyClient() {
   const week = useMemo(() => Array.from({ length: 7 }, (_, i) => addDays(date, i - 6)), [date]);
 
   function go(to: string) {
-    router.push(to === today ? "/hoy" : `/hoy?d=${to}`);
+    setBookDate(to);
   }
 
   function patch(p: Partial<DayDoc>) {
@@ -64,7 +59,6 @@ export function HoyClient() {
 
   const left = (
     <div className={styles.pageBody}>
-      <StickerLayer page="left" stickers={day.stickers} onChange={(stickers) => patch({ stickers })} />
 
       <header className={styles.head}>
         <div>
@@ -85,7 +79,7 @@ export function HoyClient() {
             <ChevronLeft />
           </button>
           {!isToday && (
-            <Link href="/hoy" className="chip">Hoy</Link>
+            <button className="chip" onClick={() => go(today)}>Hoy</button>
           )}
           <label className="icon-btn" title="Ir a una fecha">
             <CalendarDays aria-hidden />
@@ -125,7 +119,6 @@ export function HoyClient() {
 
       <div className={styles.secHead}>
         <h2 className="h-sec">Registro rápido</h2>
-        <StickerTray onPick={(k) => patch({ stickers: [...day.stickers, newSticker(k, "left")] })} />
       </div>
       <RapidLog items={day.log} onChange={(log) => patch({ log })} onMigrate={migrate} />
 
@@ -143,7 +136,6 @@ export function HoyClient() {
 
   const right = (
     <div className={styles.pageBody}>
-      <StickerLayer page="right" stickers={day.stickers} onChange={(stickers) => patch({ stickers })} />
 
       <div className={styles.secHead}>
         <h2 className="h-sec">Hábitos</h2>
@@ -239,5 +231,5 @@ export function HoyClient() {
     </div>
   );
 
-  return <Pages left={left} right={right} />;
+  return <Pages id={`hoy-${date}`} left={left} right={right} />;
 }

@@ -1,10 +1,4 @@
-"use client";
-
-import { useRef, useState, type ReactNode } from "react";
-import { Stamp, X } from "lucide-react";
-import type { PlacedSticker } from "@/lib/types";
-import { uid } from "@/lib/date";
-import styles from "./stickers.module.css";
+import type { ReactNode } from "react";
 
 const INK = "var(--ink)";
 const RED = "var(--vermilion)";
@@ -188,130 +182,10 @@ export const STICKERS: { kind: string; label: string; node: ReactNode }[] = [
   },
 ];
 
-const byKind = Object.fromEntries(STICKERS.map((s) => [s.kind, s]));
+export const STICKER_NODES: Record<string, ReactNode> = Object.fromEntries(STICKERS.map((s) => [s.kind, s.node]));
 
-/** Stickers placed on one page. Drag to move; select then Delete (or the ×) to peel off. */
-export function StickerLayer({
-  page,
-  stickers,
-  onChange,
-}: {
-  page: "left" | "right";
-  stickers: PlacedSticker[];
-  onChange: (next: PlacedSticker[]) => void;
-}) {
-  const hostRef = useRef<HTMLDivElement>(null);
-  const [sel, setSel] = useState<string | null>(null);
-  const [drag, setDrag] = useState<{ id: string; x: number; y: number } | null>(null);
-
-  const mine = stickers.filter((s) => s.page === page);
-
-  function onDown(e: React.PointerEvent, s: PlacedSticker) {
-    e.preventDefault();
-    e.stopPropagation();
-    const host = hostRef.current!.getBoundingClientRect();
-    const startX = e.clientX;
-    const startY = e.clientY;
-    const ox = s.x;
-    const oy = s.y;
-    setSel(s.id);
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-    const move = (ev: PointerEvent) => {
-      const x = Math.min(0.98, Math.max(0.02, ox + (ev.clientX - startX) / host.width));
-      const y = Math.min(0.99, Math.max(0.01, oy + (ev.clientY - startY) / host.height));
-      setDrag({ id: s.id, x, y });
-    };
-    const up = (ev: PointerEvent) => {
-      window.removeEventListener("pointermove", move);
-      window.removeEventListener("pointerup", up);
-      const moved = Math.abs(ev.clientX - startX) + Math.abs(ev.clientY - startY) > 3;
-      setDrag((d) => {
-        if (d && moved) onChange(stickers.map((x) => (x.id === d.id ? { ...x, x: d.x, y: d.y } : x)));
-        return null;
-      });
-    };
-    window.addEventListener("pointermove", move);
-    window.addEventListener("pointerup", up);
-  }
-
-  function remove(id: string) {
-    onChange(stickers.filter((s) => s.id !== id));
-    setSel(null);
-  }
-
-  return (
-    <div ref={hostRef} className={styles.layer} onPointerDown={() => setSel(null)}>
-      {mine.map((s) => {
-        const pos = drag?.id === s.id ? drag : s;
-        const def = byKind[s.kind];
-        if (!def) return null;
-        return (
-          <div
-            key={s.id}
-            className={styles.placed}
-            data-sel={sel === s.id || undefined}
-            data-drag={drag?.id === s.id || undefined}
-            style={{ left: `${pos.x * 100}%`, top: `${pos.y * 100}%`, rotate: `${s.rot}deg` }}
-            onPointerDown={(e) => onDown(e, s)}
-            onKeyDown={(e) => (e.key === "Delete" || e.key === "Backspace") && remove(s.id)}
-            tabIndex={0}
-            aria-label={`Pegatina: ${def.label}`}
-          >
-            {def.node}
-            {sel === s.id && (
-              <button
-                className={styles.peel}
-                onPointerDown={(e) => e.stopPropagation()}
-                onClick={() => remove(s.id)}
-                aria-label={`Quitar ${def.label}`}
-              >
-                <X />
-              </button>
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-/** Tray to pick a sticker; it lands on the given page and can be dragged from there. */
-export function StickerTray({ onPick }: { onPick: (kind: string) => void }) {
-  const [open, setOpen] = useState(false);
-  return (
-    <div className={styles.trayWrap}>
-      <button className="ink-btn ghost" onClick={() => setOpen((o) => !o)} aria-expanded={open}>
-        <Stamp aria-hidden /> Pegatinas
-      </button>
-      {open && (
-        <div className={styles.tray} role="menu">
-          {STICKERS.map((s) => (
-            <button
-              key={s.kind}
-              role="menuitem"
-              className={styles.trayItem}
-              onClick={() => {
-                onPick(s.kind);
-                setOpen(false);
-              }}
-              title={s.label}
-            >
-              {s.node}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-export function newSticker(kind: string, page: "left" | "right"): PlacedSticker {
-  return {
-    id: uid(),
-    kind,
-    page,
-    x: 0.55 + (Math.random() - 0.5) * 0.3,
-    y: 0.08 + Math.random() * 0.2,
-    rot: Math.round((Math.random() - 0.5) * 16),
-  };
-}
+export const STICKER_SHEETS: { name: string; kinds: string[] }[] = [
+  { name: "Sellos", kinds: ["st-hecho", "st-victoria", "st-limpio", "st-fiel", "st-firme", "seal"] },
+  { name: "Emblemas", kinds: ["cross", "anchor", "mountain", "compass", "shield", "crown", "key", "flame"] },
+  { name: "Día a día", kinds: ["dumbbell", "coffee", "sun", "moon", "bible", "heart", "paw"] },
+];

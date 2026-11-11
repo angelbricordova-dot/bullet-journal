@@ -85,31 +85,6 @@ export interface Prayer {
   answerNote?: string;
 }
 
-export interface Txn {
-  id: string;
-  date: string; // YYYY-MM-DD
-  kind: "in" | "out";
-  amount: number;
-  label: string;
-  category: string;
-}
-
-export interface Client {
-  id: string;
-  name: string;
-  monthly: number;
-  status: "active" | "paused" | "lost";
-  note?: string;
-}
-
-export interface MoneyDoc {
-  opening: number;
-  openingDate: string;
-  txns: Txn[];
-  clients: Client[];
-  goal: { name: string; amount: number; saved: number };
-}
-
 export interface BoardMeta {
   id: string;
   name: string;

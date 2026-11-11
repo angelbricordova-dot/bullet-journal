@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 
 /* ---------------------------------------------------------------
  * Tiny document cache with optimistic writes and debounced saves.
@@ -40,8 +40,12 @@ function lsSet(key: string, value: unknown) {
   }
 }
 
+let version = 0;
+const anyListeners = new Set<() => void>();
 function emit(key: string) {
+  version++;
   listeners.get(key)?.forEach((l) => l());
+  anyListeners.forEach((l) => l());
 }
 
 function subscribe(key: string, cb: () => void) {
@@ -180,34 +184,44 @@ export function useDoc<T>(key: string, fallback: T): [T, (next: T | ((prev: T) =
   return [value, update, Boolean(snapshot?.loaded)];
 }
 
-/** Load every document under a prefix (e.g. all days). Read-only snapshot, refreshed on mount. */
+/** Every document under a prefix (e.g. "day:2026-11"). Server snapshot on mount, live with local edits. */
 export function useDocList<T>(prefix: string): { items: Record<string, T>; loaded: boolean } {
-  const [state, setState] = useState<{ items: Record<string, T>; loaded: boolean }>({ items: {}, loaded: false });
+  const [server, setServer] = useState<{ prefix: string; items: Record<string, T>; loaded: boolean }>({ prefix, items: {}, loaded: false });
+  const v = useSyncExternalStore(
+    (cb) => {
+      anyListeners.add(cb);
+      return () => anyListeners.delete(cb);
+    },
+    () => version,
+    () => 0,
+  );
 
   useEffect(() => {
     let alive = true;
     (async () => {
+      const items: Record<string, T> = {};
       try {
         const res = await fetch(`/api/data?prefix=${encodeURIComponent(prefix)}`, { cache: "no-store" });
         if (res.status === 503) setSync("db_missing");
         const json = res.ok ? await res.json() : { items: [] };
-        const items: Record<string, T> = {};
         for (const it of json.items as { key: string; value: T }[]) items[it.key] = it.value;
-        // local unsaved edits win
-        for (const [k, e] of entries) if (k.startsWith(prefix) && e.value !== undefined) items[k] = e.value as T;
-        if (alive) setState({ items, loaded: true });
       } catch {
-        const items: Record<string, T> = {};
-        for (const [k, e] of entries) if (k.startsWith(prefix) && e.value !== undefined) items[k] = e.value as T;
-        if (alive) setState({ items, loaded: true });
+        /* offline: local entries only */
       }
+      if (alive) setServer({ prefix, items, loaded: true });
     })();
     return () => {
       alive = false;
     };
   }, [prefix]);
 
-  return state;
+  return useMemo(() => {
+    const items: Record<string, T> = server.prefix === prefix ? { ...server.items } : {};
+    for (const [k, e] of entries) if (k.startsWith(prefix) && e.value !== undefined && (e.dirty || e.loaded)) items[k] = e.value as T;
+    return { items, loaded: server.loaded && server.prefix === prefix };
+    // v changes whenever any local document changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [server, prefix, v]);
 }
 
 export function useSyncState(): SyncState {

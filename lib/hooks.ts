@@ -1,8 +1,8 @@
 "use client";
 
 import { useDoc } from "./client-store";
-import { DEFAULT_CHALLENGES, DEFAULT_MONEY, DEFAULT_SETTINGS, emptyDay } from "./defaults";
-import type { Challenge, DayDoc, MoneyDoc, Prayer, Settings } from "./types";
+import { DEFAULT_CHALLENGES, DEFAULT_SETTINGS, emptyDay } from "./defaults";
+import type { Challenge, DayDoc, Prayer, Settings } from "./types";
 
 export function useSettings() {
   const [raw, set, loaded] = useDoc<Settings>("settings", DEFAULT_SETTINGS);
@@ -18,11 +18,6 @@ export function useDay(date: string) {
 
 export function useChallenges() {
   return useDoc<Challenge[]>("challenges", DEFAULT_CHALLENGES);
-}
-
-export function useMoney() {
-  const [raw, set, loaded] = useDoc<MoneyDoc>("money", DEFAULT_MONEY);
-  return [{ ...DEFAULT_MONEY, ...raw }, set, loaded] as const;
 }
 
 export function usePrayers() {

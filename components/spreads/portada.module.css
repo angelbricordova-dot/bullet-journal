@@ -1,0 +1,133 @@
+.inside {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+  min-height: 100%;
+}
+.belongs {
+  font-size: 0.95rem;
+  color: var(--ink-2);
+}
+.owner {
+  font-family: var(--font-engraved);
+  font-size: 1.6rem;
+  line-height: 1.15;
+  text-wrap: balance;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--paper-edge);
+  margin-bottom: 18px;
+}
+.now {
+  display: grid;
+  gap: 8px;
+}
+.month {
+  font-size: 2.6rem;
+  line-height: 1;
+  text-transform: capitalize;
+}
+.left {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  color: var(--ink-2);
+}
+.left b {
+  font-size: 3.4rem;
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--vermilion);
+}
+.ticks {
+  display: grid;
+  grid-template-columns: repeat(31, 1fr);
+  gap: 3px;
+  max-width: 360px;
+}
+.ticks i {
+  height: 16px;
+  border-radius: 1px;
+  border: 1px solid color-mix(in oklab, var(--ink) 30%, transparent);
+}
+.ticks i[data-past] {
+  background: var(--ink);
+  border-color: var(--ink);
+}
+.ticks i[data-today] {
+  background: var(--vermilion);
+  border-color: var(--vermilion);
+}
+.year {
+  font-size: 0.875rem;
+  color: var(--ink-2);
+}
+.year b {
+  color: var(--ink);
+  font-weight: 600;
+}
+.now[data-compact] .month {
+  font-size: 1.5rem;
+}
+.now[data-compact] .left b {
+  font-size: 2.2rem;
+}
+.change {
+  margin: 22px 0 6px;
+}
+.change :global(.stamp) {
+  font-size: 1.05rem;
+}
+.verse {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--paper-edge);
+}
+.verse blockquote {
+  font-size: 1.1rem;
+  line-height: 1.4;
+}
+.verse figcaption {
+  margin-top: 6px;
+  color: var(--vermilion);
+}
+.index {
+  margin-top: 18px;
+  display: grid;
+}
+.index button {
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-areas: "name dots num" "hint hint hint";
+  align-items: baseline;
+  gap: 0 8px;
+  padding: 9px 4px;
+  border: 0;
+  border-bottom: 1px solid color-mix(in oklab, var(--paper-edge) 70%, transparent);
+  background: transparent;
+  text-align: left;
+  border-radius: 4px;
+}
+.index button:hover {
+  background: rgba(28, 35, 51, 0.04);
+}
+.iName {
+  grid-area: name;
+  font-family: var(--font-engraved);
+  font-size: 1.2rem;
+}
+.iHint {
+  grid-area: hint;
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+}
+.iDots {
+  grid-area: dots;
+  border-bottom: 1.5px dotted color-mix(in oklab, var(--ink) 35%, transparent);
+  transform: translateY(-4px);
+}
+.index .num {
+  grid-area: num;
+  color: var(--ink-2);
+}
