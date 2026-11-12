@@ -62,7 +62,7 @@ export function FeSpread() {
         <blockquote className="quote">{verse.text}</blockquote>
         <figcaption className="engraved"><Figs>{verse.ref}</Figs></figcaption>
       </figure>
-      <p className="caption">{pick ? "Versículo elegido al azar." : "Versículo de hoy. Mañana habrá otro."} Reina-Valera 1960.</p>
+      <p className="caption hint">{pick ? "Versículo elegido al azar." : "Versículo de hoy. Mañana habrá otro."} Reina-Valera 1960.</p>
 
       <GratitudeReading date={bookDate} />
 
@@ -94,7 +94,7 @@ export function FeSpread() {
           ))}
         </ul>
       ) : (
-        <p className="caption">Anota tu lectura en la página de Hoy y aparecerá aquí.</p>
+        <p className="caption">Anota tu lectura de cada día arriba y aparecerá aquí.</p>
       )}
     </div>
   );
@@ -102,7 +102,7 @@ export function FeSpread() {
   const right = (
     <div>
       <h2 className={styles.title}>Oración</h2>
-      <p className={styles.lede}>Pídelo por escrito. Cuando llegue la respuesta, márcala y anota cómo llegó.</p>
+      <p className={`hint ${styles.lede}`}>Pídelo por escrito. Cuando llegue la respuesta, márcala y anota cómo llegó.</p>
 
       <form
         className={styles.add}

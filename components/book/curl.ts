@@ -66,6 +66,15 @@ export class Curl {
           backfaceVisibility: "visible",
         });
         clip.appendChild(c);
+        // canvases don't clone their pixels: copy them over
+        const from = src.querySelectorAll("canvas");
+        c.querySelectorAll("canvas").forEach((cv, k) => {
+          const o = from[k];
+          if (!o || !o.width || !o.height) return;
+          cv.width = o.width;
+          cv.height = o.height;
+          cv.getContext("2d")?.drawImage(o, 0, 0);
+        });
         const sc = c.querySelector<HTMLElement>(".page-scroll");
         if (sc) requestAnimationFrame(() => (sc.scrollTop = scrollTop));
       }

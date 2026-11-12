@@ -17,6 +17,7 @@ const dbUrl = () => process.env.DATABASE_URL || process.env.POSTGRES_URL || "";
 
 export function storeMode(): "postgres" | "file" | "missing" {
   if (dbUrl()) return "postgres";
+  if (process.env.BITACORA_FILE_STORE === "1") return "file"; // local production test runs
   return process.env.NODE_ENV === "production" ? "missing" : "file";
 }
 
@@ -112,4 +113,21 @@ export async function deleteDoc(key: string): Promise<void> {
 
 export async function allDocs(): Promise<Row[]> {
   return listDocs("");
+}
+
+/** Wipe every document (Ajustes → Empezar de cero). */
+export async function deleteAll(): Promise<number> {
+  const mode = storeMode();
+  if (mode === "missing") missing();
+  if (mode === "file") {
+    const all = await readFile();
+    const n = Object.keys(all).length;
+    for (const k of Object.keys(all)) delete all[k];
+    await writeFile();
+    return n;
+  }
+  const { q, ready } = sql();
+  await ready;
+  const rows = (await q`DELETE FROM journal_docs RETURNING key`) as unknown[];
+  return rows.length;
 }

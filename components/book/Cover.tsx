@@ -38,7 +38,7 @@ export function CoverFront({ active = true }: { active?: boolean }) {
       <span className={styles.strap} aria-hidden>
         <i />
       </span>
-      <p className={styles.hint}>Toca para abrir</p>
+      <p className={`hint ${styles.hint}`}>Toca para abrir</p>
       <Deco id="cover" />
     </div>
   );

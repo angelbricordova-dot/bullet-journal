@@ -4,11 +4,7 @@
   color: var(--ink-2);
   max-width: 52ch;
 }
-.grid {
-  width: 100%;
-  height: auto;
-  display: block;
-}
+
 .dot {
   fill: transparent;
   stroke: color-mix(in oklab, var(--ink) 40%, transparent);
@@ -56,10 +52,21 @@
   font-weight: 600;
   letter-spacing: -0.02em;
 }
-.bar {
-  position: relative;
-  height: 14px;
+.barRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   margin: 12px 0 6px;
+}
+.barRow > span {
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+  min-width: 46px;
+  text-align: right;
+}
+.bar {
+  flex: 1;
+  height: 14px;
   border: 1.5px solid var(--ink);
   border-radius: 2px;
   padding: 2px;
@@ -69,23 +76,16 @@
   height: 100%;
   background: var(--ink);
 }
-.bar span {
-  position: absolute;
-  right: 4px;
-  top: -20px;
-  font-size: 0.75rem;
-  color: var(--ink-2);
-}
 .week {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 6px;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
   margin-bottom: 6px;
 }
 .day {
   display: grid;
   justify-items: center;
-  gap: 4px;
+  gap: 2px;
 }
 .dName {
   font-size: 0.6875rem;
@@ -93,33 +93,44 @@
   letter-spacing: 0.04em;
   color: var(--ink-3);
 }
-.dBox {
-  position: relative;
+.ring {
   width: 100%;
-  height: 46px;
-  border: 1.5px solid var(--ink);
-  border-radius: 3px;
-  overflow: hidden;
+  max-width: 54px;
+  height: auto;
 }
-.dBox i {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: var(--ink);
-  transition: height 400ms var(--ease-out);
+.track {
+  fill: none;
+  stroke: color-mix(in oklab, var(--ink) 12%, transparent);
+  stroke-width: 5;
 }
-.day[data-s="now"] .dBox {
-  border-color: var(--vermilion);
-  box-shadow: 0 0 0 2px color-mix(in oklab, var(--vermilion) 25%, transparent);
+.arc {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 5;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 700ms var(--ease-out);
+}
+.dNum {
+  font-size: 11px;
+  font-weight: 600;
+  fill: var(--ink);
+  font-family: var(--font-ui);
 }
 .day[data-s="now"] .dName {
   color: var(--vermilion);
   font-weight: 600;
 }
-.day[data-s="future"] .dBox {
-  border-style: dashed;
-  border-color: color-mix(in oklab, var(--ink) 35%, transparent);
+.day[data-s="now"] .arc {
+  stroke: var(--vermilion);
+}
+.day[data-s="now"] .track {
+  stroke: color-mix(in oklab, var(--vermilion) 18%, transparent);
+}
+.day[data-s="future"] .track {
+  stroke-dasharray: 2 3;
+}
+.day[data-s="future"] .dNum {
+  fill: var(--ink-3);
 }
 .verse {
   margin-top: 14px;

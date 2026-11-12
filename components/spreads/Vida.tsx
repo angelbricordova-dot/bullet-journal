@@ -7,6 +7,7 @@ import { useDocList } from "@/lib/client-store";
 import { addDays, daysBetween, parseYmd, todayYmd, weekday } from "@/lib/date";
 import { VERSES } from "@/lib/verses";
 import type { DayDoc } from "@/lib/types";
+import { WeeksGrid } from "@/components/WeeksGrid";
 import styles from "./vida.module.css";
 
 const TIME = VERSES.find((v) => v.ref === "Efesios 5:15-16")!;
@@ -26,14 +27,6 @@ export function VidaSpread() {
   const age = birth ? Math.floor(lived / 365.2425) : 0;
   const pct = Math.min(100, (weeksLived / totalWeeks) * 100);
 
-  // geometry: 52 columns grouped by 4 weeks, rows grouped by 5 years
-  const R = 2.35;
-  const STEP = 6.3;
-  const gx = (c: number) => 22 + c * STEP + Math.floor(c / 4) * 2.2 + R;
-  const gy = (r: number) => 16 + r * STEP + Math.floor(r / 5) * 3 + R;
-  const W = gx(51) + R + 4;
-  const H = gy(years - 1) + R + 4;
-
   // this week, Monday first
   const dow = (parseYmd(today).getDay() + 6) % 7;
   const week = Array.from({ length: 7 }, (_, i) => addDays(today, i - dow));
@@ -41,26 +34,11 @@ export function VidaSpread() {
   const left = (
     <div>
       <h1 className="h-page">Tu vida en semanas</h1>
-      <p className={styles.lede}>
+      <p className={`hint ${styles.lede}`}>
         Cada círculo es una semana. Cada fila, un año de <Figs>{`${years}`}</Figs>. Las llenas ya pasaron. La roja es esta.
       </p>
       {birth ? (
-        <svg className={styles.grid} viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`${weeksLived} semanas vividas de ${totalWeeks}`}>
-          {Array.from({ length: years }, (_, r) =>
-            r % 5 === 0 ? (
-              <text key={`y${r}`} x={0} y={gy(r) + 2.4} fontSize="6.5" fill="var(--ink-3)" className="num">
-                {r}
-              </text>
-            ) : null,
-          )}
-          {Array.from({ length: years }, (_, r) =>
-            Array.from({ length: 52 }, (_, c) => {
-              const i = r * 52 + c;
-              const state = i < weeksLived ? "past" : i === weeksLived ? "now" : "future";
-              return <circle key={i} cx={gx(c)} cy={gy(r)} r={R} data-s={state} className={styles.dot} />;
-            }),
-          )}
-        </svg>
+        <WeeksGrid years={years} lived={weeksLived} birth={birth} />
       ) : (
         <div className={styles.ask}>
           <p>Para dibujar tu vida necesito tu fecha de nacimiento.</p>
@@ -93,8 +71,10 @@ export function VidaSpread() {
         </dl>
       )}
       {birth && (
-        <div className={styles.bar} role="img" aria-label={`${pct.toFixed(1)}% de ${years} años`}>
-          <i style={{ width: `${pct}%` }} />
+        <div className={styles.barRow}>
+          <div className={styles.bar} role="img" aria-label={`${pct.toFixed(1)}% de ${years} años`}>
+            <i style={{ width: `${pct}%` }} />
+          </div>
           <span className="num">{pct.toFixed(1)}%</span>
         </div>
       )}
@@ -106,18 +86,31 @@ export function VidaSpread() {
           const doc = days[`day:${d}`];
           const sc = doc ? dayScore(doc, ids) : 0;
           const state = d < today ? "past" : d === today ? "now" : "future";
+          const r = 17;
+          const len = 2 * Math.PI * r;
           return (
             <div key={d} className={styles.day} data-s={state}>
               <span className={styles.dName}>{weekday(d).slice(0, 3)}</span>
-              <span className={styles.dBox}>
-                <i style={{ height: `${Math.round(sc * 100)}%` }} />
-              </span>
-              <span className="num caption">{parseYmd(d).getDate()}</span>
+              <svg viewBox="0 0 44 44" className={styles.ring} role="img" aria-label={`${weekday(d)} ${parseYmd(d).getDate()}: ${Math.round(sc * 100)}% de hábitos`}>
+                <circle cx="22" cy="22" r={r} className={styles.track} />
+                <circle
+                  cx="22"
+                  cy="22"
+                  r={r}
+                  className={styles.arc}
+                  strokeDasharray={len}
+                  strokeDashoffset={len * (1 - sc)}
+                  transform="rotate(-90 22 22)"
+                />
+                <text x="22" y="22" textAnchor="middle" dominantBaseline="central" className={styles.dNum}>
+                  {parseYmd(d).getDate()}
+                </text>
+              </svg>
             </div>
           );
         })}
       </div>
-      <p className="caption">La tinta de cada día muestra cuántos hábitos cumpliste.</p>
+      <p className="caption hint">El anillo de cada día se cierra con los hábitos que cumples.</p>
 
       <figure className={styles.verse}>
         <blockquote className="quote">{COUNT.text}</blockquote>

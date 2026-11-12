@@ -259,3 +259,26 @@
 .font[data-font="manuscrito"] .fontBody { font-family: var(--font-kalam); }
 .font[data-font="moderno"] .fontHead { font-family: var(--font-oswald); text-transform: uppercase; letter-spacing: 0.04em; }
 .font[data-font="moderno"] .fontBody { font-family: var(--font-archivo); }
+
+.switchRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+}
+.switchRow > span:first-child {
+  display: grid;
+}
+.switchRow small {
+  font-size: 0.75rem;
+  color: var(--ink-3);
+}
+
+.wipe {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1.5px solid var(--vermilion);
+  border-radius: 8px;
+}

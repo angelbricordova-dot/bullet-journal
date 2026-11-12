@@ -5,8 +5,8 @@ import { Delaunay } from "d3-delaunay";
 
 /**
  * A brain seen from the side — frontal, parietal, occipital and temporal
- * lobes, cerebellum and brain stem — made of hand-drawn cells. Each clean
- * day earns one cell; you choose which one and its colour.
+ * lobes, cerebellum and brain stem — made of hand-drawn cells you colour
+ * in, one fragment at a time.
  */
 
 const W = 440;
@@ -16,11 +16,6 @@ const CEREBRUM =
   "M72 196 C40 160 46 84 112 54 C166 26 252 16 316 40 C378 62 414 114 408 170 C404 208 382 228 350 234 C322 240 304 236 288 242 C262 250 244 266 212 272 C176 278 140 272 120 254 C102 238 96 222 106 210 C90 210 78 206 72 196 Z";
 const CEREBELLUM = "M292 246 C304 232 362 230 388 246 C408 260 402 292 372 300 C340 308 302 298 292 282 C284 270 284 256 292 246 Z";
 const STEM = "M248 262 C258 286 260 312 254 340 L280 340 C282 314 288 290 296 270 Z";
-const SULCI = [
-  "M118 206 C160 192 222 196 292 172", // lateral (Sylvian) fissure
-  "M232 24 C226 70 246 112 236 168", // central sulcus
-  "M330 52 C318 92 338 130 360 148", // parieto-occipital
-];
 
 export const BRAIN_PALETTE = [
   "#8e2a24", "#b5432c", "#c76b3a", "#c58b2b", "#d8b25a", "#7d8c5a",
@@ -106,14 +101,12 @@ function cells(outline: Pt[], n: number, seed: number) {
 export function Brain({
   total,
   painted,
-  available,
   color,
   onPaint,
   label,
 }: {
   total: number;
   painted: Record<string, string>;
-  available: number;
   color: string | null; // null = eraser
   onPaint: (cell: number, color: string | null) => void;
   label: string;
@@ -131,7 +124,7 @@ export function Brain({
 
   const cell = (c: { d: string; clip: string }, i: number) => {
     const fill = painted[i];
-    const canPaint = color === null ? !!fill : !!fill || available > 0;
+    const canPaint = color === null ? !!fill : true;
     return (
       <path
         key={i}
@@ -167,9 +160,6 @@ export function Brain({
       <path d={CEREBELLUM} fill="none" stroke="#16130f" strokeWidth={3.4} strokeLinejoin="round" pointerEvents="none" />
       <path d={CEREBRUM} fill="#fbf7ec" />
       {geo.cerebrum.map((c, k) => cell(c, k))}
-      {SULCI.map((d, i) => (
-        <path key={i} d={d} fill="none" stroke="#16130f" strokeWidth={3.6} strokeLinecap="round" clipPath="url(#brain-cer)" pointerEvents="none" />
-      ))}
       <path d={CEREBRUM} fill="none" stroke="#16130f" strokeWidth={3.6} strokeLinejoin="round" pointerEvents="none" />
     </svg>
   );

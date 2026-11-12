@@ -615,3 +615,8 @@ textarea.box-input {
     fill-opacity: 0;
   }
 }
+
+/* Ajustes → Indicaciones: hide every how-to line */
+[data-hints="off"] .hint {
+  display: none !important;
+}

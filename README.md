@@ -26,11 +26,11 @@ En el teléfono es una página a la vez, con las mismas secciones y las herramie
 | **Hoy** | Pendientes (se marcan como hechos, pasan a mañana o se traen de ayer), hábitos con la semana, lo que pasó hoy y fechas importantes. |
 | **Mes** | "Bienvenido noviembre", metas del mes y calendario donde escribes en cada día. |
 | **Trackers** | Sueño y ánimo del día, hábitos con puntos por día, gráfica de sueño del mes y hora de despertar. |
-| **Retos** | Pureza como un cerebro de 90 celdas: cada día limpio te da una celda y tú eliges cuál y de qué color; si caes, se vacía. Rachas de disciplina con barra por días. |
-| **Vida** | Tu vida en semanas (52 por año) y "Esta semana" día por día. |
+| **Retos** | Pureza como un cerebro de fragmentos que pintas tú: eliges un color y tocas un fragmento. "Caí" lo vacía y reinicia la cuenta. Meta de días editable. Rachas de disciplina con barra por días. |
+| **Vida** | Tu vida en semanas (52 por año): tócala para ampliarla y ver cada semana. "Esta semana" en anillos que se cierran con tus hábitos. |
 | **Fe** | Versículo del día (RVR1960), lectura bíblica, gratitud, versículos por tema y diario de oración (toca una petición para abrirla, marca "Oré por esto hoy" o "Respondida"). |
 | **Resumen** | El mes en números, tu resumen y "Mirando atrás": lo que aprendiste, lo que agradeces y lo que viene. |
-| **Ajustes** | Color del cuero, papel, hábitos, razones, fechas y copia de seguridad. |
+| **Ajustes** | Color del cuero, letra, papel, mostrar u ocultar indicaciones, hábitos, razones, fechas, copia de seguridad y "Empezar de cero" (borra todo tras escribir BORRAR). |
 
 **Momento difícil** está siempre arriba a la derecha: versículo, tus razones, acciones y temporizador de 10 minutos.
 

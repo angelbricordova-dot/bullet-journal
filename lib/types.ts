@@ -54,6 +54,7 @@ export interface Settings {
   cover: CoverColor;
   paper: PaperStyle;
   font?: FontSet;
+  hints?: boolean;
   ribbon?: number | null;
   startDate: string; // YYYY-MM-DD
   habits: Habit[];

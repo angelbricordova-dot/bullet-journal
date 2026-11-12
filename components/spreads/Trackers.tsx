@@ -53,7 +53,7 @@ export function TrackersSpread() {
       <h1 className="h-page">
         Hábitos <span className={styles.sub}>{mi.name}</span>
       </h1>
-      <p className="caption" style={{ margin: "6px 0 14px" }}>
+      <p className="caption hint" style={{ margin: "6px 0 14px" }}>
         Un punto por cada día cumplido. Puedes marcar días pasados aquí mismo.
       </p>
       <div className={styles.dotGridWrap}>
@@ -115,7 +115,7 @@ export function TrackersSpread() {
       <h3 className="h-sec">El mes</h3>
       <p className={styles.avg}>
         Promedio del mes: <b className="num">{avg ? `${avg.toFixed(1)} h` : "—"}</b>
-        <span className="caption"> · se calcula con “me dormí” y “me levanté” de cada día</span>
+        <span className="caption hint"> · se calcula con “me dormí” y “me levanté” de cada día</span>
       </p>
       <svg className={styles.chart} viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Horas de sueño en ${mi.name}`}>
         {Array.from({ length: maxH - minH + 1 }, (_, k) => {
@@ -148,7 +148,7 @@ export function TrackersSpread() {
           ) : null,
         )}
       </svg>
-      <p className="caption">La línea roja marca 8 horas.</p>
+      <p className="caption hint">La línea roja marca 8 horas.</p>
 
       <h2 className="h-sec">Ánimo</h2>
       <div className={styles.moods} style={{ gridTemplateColumns: `repeat(${mi.days}, 1fr)` }} role="img" aria-label="Ánimo de cada día">

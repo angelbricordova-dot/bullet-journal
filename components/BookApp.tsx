@@ -89,7 +89,8 @@ export function BookApp() {
     d.dataset.cover = settings.cover;
     d.dataset.paper = settings.paper;
     d.dataset.font = settings.font ?? "clasico";
-  }, [settings.cover, settings.paper, settings.font]);
+    d.dataset.hints = settings.hints === false ? "off" : "on";
+  }, [settings.cover, settings.paper, settings.font, settings.hints]);
 
   // sounds: warm up on first touch; soft pen while typing on a page
   useEffect(() => {

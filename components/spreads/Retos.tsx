@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Archive, Check, Eraser, Plus, RotateCcw } from "lucide-react";
+import { Archive, Eraser, Plus, RotateCcw } from "lucide-react";
 import { Pages } from "@/components/Pages";
 import { Segments } from "@/components/Segments";
 import { HabitCheck } from "@/components/HabitCheck";
@@ -74,14 +74,13 @@ export function RetosSpread() {
   const timeline = main
     ? [
         ...main.falls.map((f) => ({ kind: "fall" as const, date: f.date, note: f.note })),
-        ...main.wins.map((w) => ({ kind: "win" as const, date: w, note: "" })),
       ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     : [];
 
   const right = (
     <div>
       <h2 className="h-page">Disciplina</h2>
-      <p className={styles.lede}>Rachas de lo que estás construyendo. Cada marca es un día cumplido.</p>
+      <p className={`hint ${styles.lede}`}>Rachas de lo que estás construyendo. Cada tramo es un día cumplido.</p>
       <ul className={styles.list}>
         {habits.map((c) => {
           const n = challengeDays(c, history);
@@ -166,11 +165,9 @@ function BrainPage({
   const [what, setWhat] = useState("");
   const [triggers, setTriggers] = useState<string[]>([]);
   const [plan, setPlan] = useState("");
-  const [won, setWon] = useState(false);
   const { days, hours } = abstainNow(c);
   const painted = c.cells ?? {};
   const count = Object.keys(painted).length;
-  const available = Math.max(0, Math.min(days, c.target) - count);
   const [brush, setBrush] = useShared<string | null>("retos:brush", BRAIN_PALETTE[3]);
   const best = challengeBest(c, {});
 
@@ -186,13 +183,6 @@ function BrainPage({
     setTriggers([]);
     setPlan("");
     setJustFell(true);
-  }
-
-  function win() {
-    onPatch({ wins: [...c.wins, new Date().toISOString()] });
-    play("check");
-    setWon(true);
-    setTimeout(() => setWon(false), 1400);
   }
 
   return (
@@ -215,7 +205,6 @@ function BrainPage({
         <Brain
           total={c.target}
           painted={painted}
-          available={available}
           color={brush}
           label={`${c.name}, cerebro de ${c.target} celdas`}
           onPaint={(i, col) => {
@@ -236,31 +225,26 @@ function BrainPage({
           <Eraser aria-hidden />
         </button>
       </div>
-      <p className={styles.paintHint} aria-live="polite">
-        {available > 0
-          ? `Tienes ${available} ${available === 1 ? "celda" : "celdas"} por pintar. Elige un color y toca la que quieras.`
-          : count >= c.target
-            ? "Tu mente está completa. Sigue firme."
-            : "Cada día limpio te da una celda nueva. Vuelve mañana."}
-      </p>
+      <p className={`hint ${styles.paintHint}`}>Elige un color y toca un fragmento. Uno por cada día limpio.</p>
 
       <div className={styles.dayLine}>
         <span className={styles.days}>
           <b className="num">{days}</b> {days === 1 ? "día" : "días"} <span className="num">{hours} h</span>
         </span>
         <span className="caption">
-          <span className="num">{count}</span> de <span className="num">{c.target}</span> celdas pintadas · mejor racha <span className="num">{best}</span> · <span className="num">{c.wins.length}</span> victorias
+          <span className="num">{count}</span> de <span className="num">{c.target}</span> fragmentos pintados · mejor racha <span className="num">{best}</span>
         </span>
       </div>
 
       <div className={styles.actions}>
-        <button className="ink-btn" onClick={win}>
-          <Check aria-hidden /> Vencí una tentación
-        </button>
+        <label className={styles.metaInline}>
+          <span>Meta</span>
+          <input className="box-input num" type="number" min={10} max={365} value={c.target} onChange={(e) => onPatch({ target: Math.max(10, Math.min(365, Number(e.target.value) || 90)) })} aria-label="Meta en días" />
+          <span>días</span>
+        </label>
         <button className="ink-btn ghost" onClick={() => setFalling(!falling)} aria-expanded={falling}>
           <RotateCcw aria-hidden /> Caí
         </button>
-        {won && <span className={styles.won} aria-live="polite">Victoria</span>}
       </div>
 
       {justFell && !falling && (
@@ -308,12 +292,6 @@ function BrainPage({
         </form>
       )}
 
-      <div className={styles.target}>
-        <label className="field" style={{ maxWidth: 130 }}>
-          <span>Meta (días)</span>
-          <input className="box-input num" type="number" min={10} max={365} value={c.target} onChange={(e) => onPatch({ target: Math.max(10, Math.min(365, Number(e.target.value) || 90)) })} />
-        </label>
-      </div>
     </div>
   );
 }

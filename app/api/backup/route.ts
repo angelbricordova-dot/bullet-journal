@@ -1,5 +1,5 @@
 import { NextResponse, connection } from "next/server";
-import { allDocs, KEY_RE, putDoc } from "@/lib/store";
+import { allDocs, deleteAll, KEY_RE, putDoc } from "@/lib/store";
 
 /** Full export of every document. */
 export async function GET() {
@@ -36,5 +36,18 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, restored: n });
   } catch {
     return NextResponse.json({ error: "server_error" }, { status: 500 });
+  }
+}
+
+/** Start from zero: { confirm: "BORRAR" } deletes every document. */
+export async function DELETE(request: Request) {
+  try {
+    const body = await request.json().catch(() => ({}));
+    if (body?.confirm !== "BORRAR") return NextResponse.json({ error: "confirm_required" }, { status: 400 });
+    const deleted = await deleteAll();
+    return NextResponse.json({ ok: true, deleted });
+  } catch (e) {
+    const db = e instanceof Error && e.message === "DB_MISSING";
+    return NextResponse.json({ error: db ? "db_missing" : "server_error" }, { status: db ? 503 : 500 });
   }
 }

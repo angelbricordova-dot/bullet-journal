@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { memo, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { FaceCtx } from "../Pages";
 import { SPREAD_LIST } from "./spreads";
 import { SPREAD_COMPONENTS } from "./registry";
@@ -31,7 +31,7 @@ export function useView() {
   return useShared<View>("book:view", DEFAULT_VIEW);
 }
 
-function Face({ spread, side, active, render }: { spread: number; side: "left" | "right"; active: boolean; render: boolean }) {
+const Face = memo(function Face({ spread, side, active, render }: { spread: number; side: "left" | "right"; active: boolean; render: boolean }) {
   const C = SPREAD_COMPONENTS[spread];
   return (
     <div className={`${styles.face} ${side === "left" ? styles.back : styles.front}`} data-side={side} inert={!active || undefined}>
@@ -50,7 +50,7 @@ function Face({ spread, side, active, render }: { spread: number; side: "left" |
       <span className={`num ${styles.folio}`}>{side === "left" ? spread * 2 : spread * 2 + 1}</span>
     </div>
   );
-}
+});
 
 function Tab({ index, back }: { index: number; back?: boolean }) {
   const s = SPREAD_LIST[index];
@@ -316,6 +316,12 @@ export function Book3D({ pw, ph, offsetX = 0 }: { pw: number; ph: number; offset
       <div ref={bookRef} className={styles.book} style={bookStyle} data-closed={closed || undefined} data-spread={cur}>
         <div className={styles.backCover} />
         <div className={styles.spine} ref={spineRef} />
+        {/* the spine: the leather back that joins both covers; it stands up when the book is shut */}
+        <div className={styles.spineBack} data-closed={closed || undefined} aria-hidden>
+          <span className={styles.spineBand} />
+          <span className={styles.spineTitle}>Bitácora</span>
+          <span className={styles.spineBand} />
+        </div>
 
         {/* paper glued inside the back cover: the last spread's right page */}
         <div className={styles.base} style={{ boxShadow: stackShadow(rightCount) }}>

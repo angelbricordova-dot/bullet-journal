@@ -82,7 +82,7 @@ export function PortadaSpread() {
           ),
         )}
       </ol>
-      <p className="caption" style={{ marginTop: 18 }}>
+      <p className="caption hint" style={{ marginTop: 18 }}>
         Toca un tema o una pestaña para ir. Arrastra la esquina de la hoja para pasar página.
       </p>
     </div>

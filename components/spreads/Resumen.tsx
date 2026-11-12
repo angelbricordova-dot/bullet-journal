@@ -79,7 +79,7 @@ export function ResumenSpread() {
   const right = (
     <div>
       <h2 className="h-page">Mirando atrás</h2>
-      <p className="caption" style={{ margin: "6px 0 10px" }}>Unas líneas al cerrar el mes. Lo que no se escribe, se olvida.</p>
+      <p className="caption hint" style={{ margin: "6px 0 10px" }}>Unas líneas al cerrar el mes. Lo que no se escribe, se olvida.</p>
       <h3 className="h-sec">Lo que aprendí</h3>
       <textarea
         className={`ruled ${styles.reflect}`}

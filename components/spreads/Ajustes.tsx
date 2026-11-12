@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { ArrowDown, ArrowUp, Download, LogOut, Plus, Trash2, Upload } from "lucide-react";
+import { ArrowDown, ArrowUp, Download, Eraser, LogOut, Plus, Trash2, Upload } from "lucide-react";
 import { Pages } from "@/components/Pages";
 import { useSettings } from "@/lib/hooks";
 import { flushAll } from "@/lib/client-store";
@@ -33,6 +33,7 @@ const PAPERS: { id: PaperStyle; label: string }[] = [
 export function AjustesSpread() {
   const [s, setS] = useSettings();
   const [msg, setMsg] = useState("");
+  const [wipe, setWipe] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const set = (p: Partial<Settings>) => setS((prev) => ({ ...prev, ...p }));
@@ -96,6 +97,18 @@ export function AjustesSpread() {
         ))}
       </div>
 
+      <h2 className="h-sec">Indicaciones</h2>
+      <label className={styles.switchRow}>
+        <span>
+          Mostrar las indicaciones
+          <small>Las líneas que explican cómo usar cada hoja.</small>
+        </span>
+        <span className={styles.toggle}>
+          <input type="checkbox" checked={s.hints !== false} onChange={(e) => set({ hints: e.target.checked })} />
+          <span aria-hidden />
+        </span>
+      </label>
+
       <h2 className="h-sec">Dueño</h2>
       <div className={styles.grid2}>
         <label className="field">
@@ -120,6 +133,48 @@ export function AjustesSpread() {
         <input ref={fileRef} type="file" accept="application/json" hidden onChange={(e) => e.target.files?.[0] && restore(e.target.files[0])} />
       </div>
       {msg && <p className={styles.note} role="status">{msg}</p>}
+
+      <h2 className="h-sec">Empezar de cero</h2>
+      <p className={styles.note}>Borra todo el cuaderno: días, retos, oraciones, dibujos y ajustes. No se puede deshacer, así que primero descarga una copia.</p>
+      {wipe === null ? (
+        <button className="ink-btn ghost" onClick={() => setWipe("")}>
+          <Eraser aria-hidden /> Empezar de cero…
+        </button>
+      ) : (
+        <form
+          className={styles.wipe}
+          onSubmit={async (e) => {
+            e.preventDefault();
+            if (wipe !== "BORRAR") return;
+            const res = await fetch("/api/backup", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ confirm: "BORRAR" }) });
+            if (!res.ok) {
+              setMsg("No se pudo borrar. Inténtalo de nuevo.");
+              return;
+            }
+            try {
+              Object.keys(localStorage).filter((k) => k.startsWith("bitacora:")).forEach((k) => localStorage.removeItem(k));
+            } catch {}
+            setMsg("Cuaderno en blanco. Recargando…");
+            setTimeout(() => location.reload(), 700);
+          }}
+        >
+          <label className="field">
+            <span>Escribe BORRAR para confirmar</span>
+            <input className="box-input" value={wipe} onChange={(e) => setWipe(e.target.value)} autoFocus autoComplete="off" />
+          </label>
+          <div className={styles.row}>
+            <a className="ink-btn ghost" href="/api/backup" download>
+              <Download aria-hidden /> Descargar copia antes
+            </a>
+            <button className="ink-btn red" type="submit" disabled={wipe !== "BORRAR"}>
+              Borrar todo
+            </button>
+            <button className="ink-btn ghost" type="button" onClick={() => setWipe(null)}>
+              Cancelar
+            </button>
+          </div>
+        </form>
+      )}
 
       <h2 className="h-sec">Sesión</h2>
       <p className={styles.note}>La contraseña se cambia en Vercel, en la variable APP_PASSWORD.</p>

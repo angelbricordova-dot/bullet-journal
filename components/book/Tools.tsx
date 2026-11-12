@@ -166,7 +166,7 @@ export function ToolPanel({ onDone, compact }: { onDone?: () => void; compact?: 
 
       {tool !== "none" && (
         <div className={styles.options}>
-          {HINT[tool] && <p className={styles.hint}>{HINT[tool]}</p>}
+          {HINT[tool] && <p className={`hint ${styles.hint}`}>{HINT[tool]}</p>}
           {showInk && (
             <div className={styles.swatches} role="radiogroup" aria-label="Color">
               {INKS.map((c) => (

@@ -189,7 +189,7 @@ export function MesSpread() {
           );
         })}
       </div>
-      <p className="caption" style={{ marginTop: 8 }}>
+      <p className="caption hint" style={{ marginTop: 8 }}>
         Toca un día para escribir en él. Toca el número para abrir su página.
       </p>
     </div>
