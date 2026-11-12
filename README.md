@@ -18,7 +18,7 @@ Un cuaderno de cuero con anillas de latón, en 3D. En PC:
 - El **marcapáginas** (cinta roja) se pone en la hoja que quieras o se quita con "Marcar hoja" / "Quitar marca"; tocar su punta te lleva a esa hoja.
 - La **letra** del cuaderno se cambia en Ajustes: clásico grabado, romano, máquina de escribir, manuscrito o moderno.
 
-En el teléfono es una página a la vez, con las mismas secciones y las herramientas en el botón de latón.
+En el teléfono es una **libreta de anillas arriba**: papel a todo lo ancho, deslizas a los lados para pasar de hoja (la hoja se levanta sobre las anillas) y las pestañas de cuero de abajo saltan a cada sección. El menú ☰ tiene el índice, el marcapáginas y el sonido; la pluma abre las herramientas. Se ve mejor instalada en la pantalla de inicio ("Agregar a pantalla de inicio").
 
 ## Secciones
 

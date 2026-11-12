@@ -1,3 +1,7 @@
+/* ================================================================
+   Phone: a top-bound pad in a leather folder
+   ================================================================ */
+
 .flat {
   height: 100dvh;
   display: flex;
@@ -5,83 +9,154 @@
   background:
     radial-gradient(140% 90% at 30% 0%, var(--leather-hi), transparent 60%),
     linear-gradient(160deg, var(--leather) 0%, var(--leather-lo) 100%);
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
 }
-.head {
+
+/* leather binding strip with the rings */
+.binding {
+  position: relative;
+  z-index: 5;
+  height: calc(env(safe-area-inset-top) + 40px);
+  padding: env(safe-area-inset-top) 8px 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  padding: calc(env(safe-area-inset-top) + 10px) 14px 10px 16px;
-  color: var(--leather-ink);
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.35);
 }
-.now {
+.bindBtn {
+  width: 40px;
+  height: 36px;
   display: grid;
-  line-height: 1.15;
+  place-items: center;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: color-mix(in oklab, var(--leather-ink) 80%, transparent);
 }
-.now :global(.engraved) {
-  font-size: 1.05rem;
-  text-transform: capitalize;
+.bindBtn svg {
+  width: 20px;
+  height: 20px;
 }
-.left {
-  font-size: 0.75rem;
-  opacity: 0.85;
+.bindBtn:active {
+  background: rgba(0, 0, 0, 0.2);
 }
-.left b {
-  font-size: 0.95rem;
+.bindBtn[data-on] {
   color: var(--brass-hi);
 }
-.head :global(.brass-btn) {
-  height: 34px;
-  padding: 0 12px;
-  font-size: 0.85rem;
+.rings,
+.closedRings {
+  position: absolute;
+  left: 60px;
+  right: 60px;
+  bottom: -14px;
+  height: 30px;
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
 }
-.paper {
+.rings i,
+.closedRings i {
+  width: 10px;
+  height: 30px;
+  border-radius: 6px;
+  border: 3px solid #c9a565;
+  border-left-color: #f0d9a2;
+  border-bottom-color: #7a5d30;
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.45);
+}
+
+/* the pad: a stack of sheets, the top one is the page */
+.pad {
   position: relative;
   flex: 1;
   min-height: 0;
-  margin: 0 6px;
-  border-radius: 6px;
-  background: var(--paper);
-  box-shadow: 0 0 0 1px var(--paper-edge), 0 6px 14px rgba(0, 0, 0, 0.45);
-  overflow: hidden;
-  animation: page-in 380ms var(--ease-out);
+  margin: 0 8px;
+  perspective: 1600px;
+  perspective-origin: 50% 0;
 }
-@keyframes page-in {
-  from {
-    opacity: 0;
-    transform: translateX(14px) rotateY(-6deg);
-  }
+.under {
+  position: absolute;
+  inset: 0 1px -5px;
+  border-radius: 0 0 6px 6px;
+  background: var(--paper-2);
+  box-shadow:
+    0 2px 0 #ddd2b8,
+    0 4px 0 #cbbd9d,
+    0 6px 0 #d6c9ab,
+    0 10px 16px rgba(0, 0, 0, 0.45);
+}
+.sheet {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+  border-radius: 1px 1px 5px 5px;
+  overflow: hidden;
+  transition: transform 220ms var(--ease-out);
+  transform-origin: 50% 0;
+}
+.holes {
+  position: absolute;
+  top: 7px;
+  left: 52px;
+  right: 52px;
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+  z-index: 2;
+}
+.holes i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 60%, #2a1c12 0 45%, #5b4632 60%, transparent 70%);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.6);
 }
 .scroll {
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding-top: 26px;
+  user-select: text;
+  -webkit-user-select: text;
 }
 .scroll :global(.page-scroll) {
   overflow: visible;
-  padding: 20px 18px 26px;
+  padding: 14px 18px 20px;
 }
 .scroll :global(.page-scroll[data-part="second"]) {
-  border-top: 1px dashed var(--paper-edge);
-  padding-bottom: 96px;
+  padding-top: 6px;
+  padding-bottom: 40px;
 }
-.where {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 12px 18px 0;
-  font-size: 0.85rem;
-  color: var(--ink-3);
+.ribbon {
+  position: absolute;
+  top: 0;
+  right: 3px;
+  width: 11px;
+  height: 46px;
+  background:
+    linear-gradient(to right, rgba(0, 0, 0, 0.25), transparent 30%, rgba(255, 255, 255, 0.14) 50%, transparent 70%, rgba(0, 0, 0, 0.25)),
+    var(--ribbon);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 7px), 0 100%);
+  pointer-events: none;
+  z-index: 3;
+  animation: ribbon-in 500ms var(--ease-out);
 }
-.where svg {
-  width: 15px;
-  height: 15px;
+@keyframes ribbon-in {
+  from {
+    height: 0;
+  }
 }
 .drawing {
   position: absolute;
-  left: 12px;
-  right: 12px;
-  bottom: 12px;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -99,54 +174,48 @@
   border-color: var(--paper);
   height: 34px;
 }
-.fabs {
-  position: fixed;
-  right: 16px;
-  bottom: calc(env(safe-area-inset-bottom) + 76px);
-  z-index: 20;
-}
-.fab {
+
+/* leather index tabs hanging from the bottom edge */
+.tabs {
   display: flex;
-  align-items: center;
-  gap: 2px;
-  height: 48px;
-  padding: 0 14px;
-  border: 0;
-  border-radius: 24px;
-  color: #2a1d0b;
-  background: linear-gradient(180deg, var(--brass-hi), var(--brass) 55%, var(--brass-lo));
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.45) inset, 0 6px 14px rgba(0, 0, 0, 0.45);
+  gap: 3px;
+  padding: 7px 10px calc(env(safe-area-inset-bottom) + 8px);
 }
-.fab svg {
-  width: 19px;
-  height: 19px;
-}
-.nav {
+.tabs button {
+  flex: 1;
+  min-width: 0;
+  height: 38px;
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  padding: 6px 4px calc(env(safe-area-inset-bottom) + 6px);
-}
-.nav button {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  padding: 6px 0;
+  place-items: center;
+  padding: 0 2px;
   border: 0;
-  border-radius: 8px;
-  background: transparent;
-  color: color-mix(in oklab, var(--leather-ink) 72%, transparent);
-  font-size: 0.6875rem;
+  border-radius: 0 0 9px 9px;
+  background: linear-gradient(to bottom, var(--leather-lo), var(--leather) 40%, var(--leather-hi));
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35), inset 0 -1px 0 rgba(255, 255, 255, 0.06);
+  color: color-mix(in oklab, var(--leather-ink) 85%, transparent);
+  font-family: var(--font-engraved);
+  font-size: 0.74rem;
+  letter-spacing: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: background-color 160ms, transform 160ms var(--ease-out);
 }
-.nav svg {
-  width: 21px;
-  height: 21px;
-  stroke-width: 1.6;
+.tabs button:last-child {
+  flex: 0 0 44px;
 }
-.nav button[aria-current="page"] {
-  color: var(--brass-hi);
-  background: color-mix(in oklab, var(--leather-lo) 70%, black);
+.tabs button svg {
+  width: 18px;
+  height: 18px;
 }
+.tabs button[aria-current="page"] {
+  background: linear-gradient(to bottom, var(--paper), var(--paper-2));
+  color: var(--ink);
+  transform: translateY(-3px);
+  height: 41px;
+}
+
+/* sheets that slide up from the bottom */
 .sheetWrap {
   position: fixed;
   inset: 0;
@@ -161,7 +230,7 @@
     opacity: 0;
   }
 }
-.sheet {
+.drawer {
   position: relative;
   width: 100%;
   max-height: 82dvh;
@@ -224,24 +293,6 @@
   font-size: 0.75rem;
   color: var(--ink-3);
 }
-.closed {
-  min-height: 100dvh;
-  display: grid;
-  place-items: center;
-  padding: 24px;
-  perspective: 1400px;
-}
-.closedCover {
-  width: min(380px, 86vw);
-  aspect-ratio: 3 / 4.1;
-  border-radius: 6px 12px 12px 6px;
-  background:
-    radial-gradient(120% 70% at 30% 8%, var(--leather-hi), transparent 60%),
-    linear-gradient(165deg, var(--leather) 0%, var(--leather-lo) 100%);
-  box-shadow: inset 6px 0 10px -4px rgba(0, 0, 0, 0.55), 0 30px 60px -10px rgba(0, 0, 0, 0.8);
-  transform: rotateY(-8deg) rotateX(6deg);
-}
-
 .soundRow {
   width: 100%;
   display: flex;
@@ -257,4 +308,27 @@
 .soundRow svg {
   width: 22px;
   height: 22px;
+}
+
+/* shut: the leather pad cover under the rings */
+.closed {
+  position: relative;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding: calc(env(safe-area-inset-top) + 40px) 8px calc(env(safe-area-inset-bottom) + 16px);
+  background: var(--desk);
+}
+.closed .closedRings {
+  top: calc(env(safe-area-inset-top) + 24px);
+  bottom: auto;
+  z-index: 2;
+}
+.closedCover {
+  flex: 1;
+  border-radius: 4px 4px 12px 12px;
+  background:
+    radial-gradient(120% 70% at 30% 8%, var(--leather-hi), transparent 60%),
+    linear-gradient(165deg, var(--leather) 0%, var(--leather-lo) 100%);
+  box-shadow: inset 0 6px 10px -4px rgba(0, 0, 0, 0.55), 0 12px 0 -4px #cbbd9d, 0 30px 60px -10px rgba(0, 0, 0, 0.8);
 }

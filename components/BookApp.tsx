@@ -132,7 +132,7 @@ export function BookApp() {
 
   return (
     <>
-      {wide ? <Desk onSos={() => setSos(true)} pw={size.pw} ph={size.ph} side={side} /> : <FlatBook onSos={() => setSos(true)} />}
+      {wide ? <Desk onSos={() => setSos(true)} pw={size.pw} ph={size.ph} side={side} /> : <FlatBook />}
       {sos && <SosSheet onClose={() => setSos(false)} />}
     </>
   );
