@@ -14,7 +14,7 @@ import { useTheme } from "@/lib/theme";
 import { redo, undo, useSyncState } from "@/lib/client-store";
 import { goSpread, useSpread, useTool } from "@/lib/book";
 import { getShared, setShared, useShared } from "@/lib/shared";
-import { play, preloadSfx, setMuted, typeTick, useMuted } from "@/lib/sfx";
+import { play, preloadSfx, setMuted, useMuted } from "@/lib/sfx";
 
 const SYNC_LABEL: Record<string, string> = {
   idle: "Al día",
@@ -141,7 +141,6 @@ export function BookApp() {
         }
         return;
       }
-      if (!mod && e.key.length === 1 && t.closest(".page-content") && t.matches("input, textarea")) typeTick();
       if (!mod && (e.key === "h" || e.key === "H") && !t.closest("input, textarea, select, [contenteditable]")) {
         setShared("desk:clean", !getShared("desk:clean", false));
       }

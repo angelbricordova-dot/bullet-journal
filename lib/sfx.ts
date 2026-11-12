@@ -21,7 +21,6 @@ export type Sfx =
   | "check"
   | "paper-place"
   | "photo"
-  | "type-tick"
   | "paint"
   | "ribbon";
 
@@ -43,7 +42,6 @@ const VOL: Partial<Record<Sfx, number>> = {
   check: 0.45,
   "paper-place": 0.6,
   photo: 0.6,
-  "type-tick": 0.5,
   paint: 0.6,
   ribbon: 0.65,
 };
@@ -204,11 +202,3 @@ export function stopLoop() {
   loopGain = null;
 }
 
-/* ---- a soft pen stroke while typing on a page ---- */
-let lastType = 0;
-export function typeTick() {
-  const now = performance.now();
-  if (now - lastType < 45) return;
-  lastType = now;
-  play("type-tick", { volume: 0.55 + Math.random() * 0.25, rate: 0.9 + Math.random() * 0.25 });
-}
