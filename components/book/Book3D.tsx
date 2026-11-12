@@ -296,6 +296,8 @@ export function Book3D({ pw, ph, offsetX = 0 }: { pw: number; ph: number; offset
     width: pw * 2,
     height: ph,
     transform: `rotateX(${view.rx}deg) rotateY(${view.ry}deg) scale(${view.zoom})`,
+    // a shut book spins around its own middle, not around the spine
+    transformOrigin: closed ? "75% 50%" : closedBack ? "25% 50%" : "50% 50%",
     ["--pw" as string]: `${pw}px`,
     ["--ph" as string]: `${ph}px`,
     ["--m" as string]: `${M}px`,

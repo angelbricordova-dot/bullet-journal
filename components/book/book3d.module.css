@@ -126,6 +126,9 @@
   left: 0;
   border-radius: 4px 0 0 4px;
   transform: translateZ(0);
+  /* only the paper edge seen from the front; from behind the cover shows */
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 .leaf {
   position: absolute;
