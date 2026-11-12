@@ -34,6 +34,23 @@
   --ribbon: #8b1a1a;
   --ribbon-hi: #b83a2e;
 
+  /* surfaces that change with day / night */
+  --card: #f4ecda;
+  --card-2: #f6f0e1;
+  --edge-1: #ddd2b8;
+  --edge-2: #cbbd9d;
+  --grid-line: var(--grid-line);
+  --chart-line: #e4dfd2;
+  --field: rgba(255, 255, 255, 0.45);
+  --field-focus: rgba(255, 255, 255, 0.7);
+  --ink-hover: #2b3550;
+  --cell: #fbf7ec;
+  --stroke-dark: #16130f;
+  --stem: #efe6cf;
+  --sheet-back: #efe6d0;
+  --sheet-back-2: #e7dcc2;
+  --hl-blend: multiply;
+  --dot: #a9a39a;
   --font-engraved: var(--font-fell-sc), "Times New Roman", serif;
   --font-fell: var(--font-fell), "Times New Roman", serif;
   --font-ui: var(--font-archivo), system-ui, sans-serif;
@@ -71,6 +88,41 @@
 [data-font="moderno"] .h-sec {
   text-transform: uppercase;
   letter-spacing: 0.04em;
+}
+
+/* ---------------- night: warm dark paper for reading ---------------- */
+[data-theme="noche"] {
+  --desk: #0b0806;
+  --desk-2: #120d0a;
+  --paper: #1d1915;
+  --paper-2: #191612;
+  --paper-edge: #3a332b;
+  --ink: #e8dcc4;
+  --ink-2: #bdb19b;
+  --ink-3: #958b79;
+  --rule: #34393f;
+  --margin: #7d3a2d;
+  --vermilion: #e2826a;
+  --card: #241f1a;
+  --card-2: #2a241e;
+  --edge-1: #2e2822;
+  --edge-2: #26211c;
+  --grid-line: #3a3530;
+  --chart-line: #2e2a26;
+  --field: rgba(255, 255, 255, 0.05);
+  --field-focus: rgba(255, 255, 255, 0.09);
+  --ink-hover: #f3e8d1;
+  --cell: #2a2520;
+  --stroke-dark: #d8ccb4;
+  --stem: #3a332b;
+  --sheet-back: #26211c;
+  --sheet-back-2: #201c18;
+  --hl-blend: screen;
+  --dot: #4a443c;
+  color-scheme: dark;
+}
+[data-theme="noche"] body {
+  background-image: radial-gradient(120% 80% at 50% 0%, #1d150f 0%, var(--desk-2) 40%, var(--desk) 75%);
 }
 
 [data-cover="saddle"] {
@@ -212,11 +264,11 @@ button:disabled {
   background-size: 100% var(--line);
 }
 [data-paper="dots"] .ruled {
-  background-image: radial-gradient(circle, #a9a39a 1px, transparent 1.4px);
+  background-image: radial-gradient(circle, var(--dot) 1px, transparent 1.4px);
   background-size: 22px 22px;
 }
 [data-paper="grid"] .ruled {
-  background-image: linear-gradient(to right, #d7d3c6 1px, transparent 1px), linear-gradient(to bottom, #d7d3c6 1px, transparent 1px);
+  background-image: linear-gradient(to right, var(--grid-line) 1px, transparent 1px), linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
   background-size: 20px 20px;
 }
 
@@ -416,7 +468,7 @@ button:disabled {
 .box-input {
   height: 40px;
   padding: 0 10px;
-  background: rgba(255, 255, 255, 0.45);
+  background: var(--field);
   border: 1px solid var(--paper-edge);
   border-radius: 6px;
   outline: none;
@@ -424,7 +476,7 @@ button:disabled {
 }
 .box-input:focus {
   border-color: var(--ink-2);
-  background: rgba(255, 255, 255, 0.7);
+  background: var(--field-focus);
 }
 textarea.box-input {
   height: auto;
@@ -448,7 +500,7 @@ textarea.box-input {
   transition: transform 120ms var(--ease-out), background-color 160ms;
 }
 .ink-btn:hover {
-  background: #2b3550;
+  background: var(--ink-hover);
 }
 .ink-btn:active {
   transform: scale(0.97);
@@ -486,7 +538,7 @@ textarea.box-input {
   transition: background-color 140ms, color 140ms;
 }
 .icon-btn:hover {
-  background: rgba(28, 35, 51, 0.07);
+  background: color-mix(in oklab, var(--ink) 8%, transparent);
   color: var(--ink);
 }
 .icon-btn svg {
@@ -666,4 +718,11 @@ textarea.box-input {
 .unclean svg {
   width: 18px;
   height: 18px;
+}
+
+/* day ⇄ night: a slow lamp-dim cross-fade */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 420ms;
+  animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
 }

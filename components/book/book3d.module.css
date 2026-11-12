@@ -262,7 +262,7 @@
 .coverInPaper .face {
   transform: none;
   border-radius: 4px 0 0 4px;
-  box-shadow: -3px 0 0 #ddd2b8, -5px 1px 0 #cbbd9d, -8px 6px 14px rgba(0, 0, 0, 0.3);
+  box-shadow: -3px 0 0 var(--edge-1), -5px 1px 0 var(--edge-2), -8px 6px 14px rgba(0, 0, 0, 0.3);
 }
 
 /* brass rings */
@@ -357,7 +357,7 @@
 }
 .grabR::after {
   right: 0;
-  background: linear-gradient(135deg, transparent 50%, rgba(60, 40, 10, 0.18) 50%, #efe6d0 62%);
+  background: linear-gradient(135deg, transparent 50%, rgba(60, 40, 10, 0.18) 50%, var(--sheet-back) 62%);
   border-radius: 0 0 4px 0;
 }
 .grabL {
@@ -365,7 +365,7 @@
 }
 .grabL::after {
   left: 0;
-  background: linear-gradient(225deg, transparent 50%, rgba(60, 40, 10, 0.18) 50%, #efe6d0 62%);
+  background: linear-gradient(225deg, transparent 50%, rgba(60, 40, 10, 0.18) 50%, var(--sheet-back) 62%);
   border-radius: 0 0 0 4px;
 }
 .grab:hover::after {

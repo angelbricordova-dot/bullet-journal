@@ -10,7 +10,7 @@ export const SPREAD_LIST = [
   { key: "vida", label: "Vida", hint: "Tu vida en semanas: cada día cuenta", icon: Hourglass },
   { key: "fe", label: "Fe", hint: "Versículos, lectura, gratitud y oración", icon: Cross },
   { key: "resumen", label: "Resumen", hint: "El mes en números y lo que aprendiste", icon: NotebookPen },
-  { key: "ajustes", label: "Ajustes", hint: "Portada, letra, papel, hábitos y copia", icon: Settings2 },
+  { key: "ajustes", label: "Ajustes", hint: "Portada, modo, letra, papel, hábitos y copia", icon: Settings2 },
 ] as const;
 
 export type SpreadKey = (typeof SPREAD_LIST)[number]["key"];

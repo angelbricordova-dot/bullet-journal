@@ -29,7 +29,7 @@ export const viewport: Viewport = {
 };
 
 // Apply the saved cover and paper before first paint (no flash).
-const prePaint = `try{var s=JSON.parse(localStorage.getItem('bitacora:settings')||'null');var d=document.documentElement;d.dataset.cover=(s&&s.cover)||'oxblood';d.dataset.paper=(s&&s.paper)||'ruled';d.dataset.font=(s&&s.font)||'clasico';d.dataset.hints=(s&&s.hints===false)?'off':'on';}catch(e){}`;
+const prePaint = `try{var s=JSON.parse(localStorage.getItem('bitacora:settings')||'null');var d=document.documentElement;d.dataset.cover=(s&&s.cover)||'oxblood';d.dataset.paper=(s&&s.paper)||'ruled';d.dataset.font=(s&&s.font)||'clasico';d.dataset.hints=(s&&s.hints===false)?'off':'on';var t=(s&&s.theme)||'dia';if(t==='auto'){var h=new Date().getHours();t=(h>=19||h<6)?'noche':'dia';}d.dataset.theme=t;}catch(e){}`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

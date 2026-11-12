@@ -8,6 +8,7 @@ import { play, setLoopLevel, startLoop, stopLoop, tapeSound } from "@/lib/sfx";
 import { drag, now } from "@/lib/drag";
 import { uid } from "@/lib/date";
 import { tilt } from "@/lib/random";
+import { nightInk, useTheme } from "@/lib/theme";
 import { STICKER_NODES } from "../Stickers";
 import styles from "./deco.module.css";
 
@@ -172,7 +173,7 @@ function pathFor(s: Stroke, W: number): string {
 
 function strokeProps(s: Stroke, W: number) {
   const w = Math.max(0.8, s.size * W);
-  if (s.mode === "marker") return { strokeWidth: w, strokeOpacity: 0.38, strokeLinecap: "butt" as const, style: { mixBlendMode: "multiply" as const } };
+  if (s.mode === "marker") return { strokeWidth: w, strokeOpacity: 0.38, strokeLinecap: "butt" as const, style: { mixBlendMode: "var(--hl-blend)" as unknown as "multiply" } };
   if (s.mode === "pencil") return { strokeWidth: w, strokeOpacity: 0.72, strokeLinecap: "round" as const };
   return { strokeWidth: w, strokeOpacity: 0.94, strokeLinecap: "round" as const };
 }
@@ -186,6 +187,7 @@ export function Deco({ id }: { id: string }) {
   const [hl] = useHighlight();
   const [size] = useSize();
   const [tapeStyle] = useTapeStyle();
+  const night = useTheme().theme === "noche";
   const ref = useRef<HTMLDivElement>(null);
   const [dim, setDim] = useState({ w: BASE_W, h: 700 });
   const [sel, setSel] = useState<string | null>(null);
@@ -466,7 +468,7 @@ export function Deco({ id }: { id: string }) {
       );
     if (it.type === "text")
       return (
-        <span className={styles.text} style={{ color: it.color }}>
+        <span className={styles.text} style={{ color: night && it.color ? nightInk(it.color) : it.color }}>
           <AutoText
             value={it.text ?? ""}
             autoFocus={focusId === it.id}
@@ -506,7 +508,7 @@ export function Deco({ id }: { id: string }) {
     <div ref={ref} className={styles.layer} onPointerDown={() => setSel(null)} data-drawing={active || undefined}>
       <svg className={styles.ink} width={W} height={dim.h} aria-hidden>
         {[...strokes, ...(live ? [live] : [])].map((s) => (
-          <path key={s.id} d={pathFor(s, W)} stroke={s.color} strokeLinejoin="round" fill="none" {...strokeProps(s, W)} />
+          <path key={s.id} d={pathFor(s, W)} stroke={night && s.mode !== "marker" ? nightInk(s.color) : s.color} strokeLinejoin="round" fill="none" {...strokeProps(s, W)} />
         ))}
       </svg>
 

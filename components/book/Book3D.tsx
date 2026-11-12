@@ -391,7 +391,7 @@ export function Book3D({ pw, ph, offsetX = 0 }: { pw: number; ph: number; offset
 function stackShadow(n: number, left = false): string {
   const layers = Math.min(6, Math.ceil(n / 1.5));
   const out: string[] = [];
-  for (let i = 1; i <= layers; i++) out.push(`${left ? -i : i}px ${i * 0.6}px 0 ${i % 2 ? "#ddd2b8" : "#cbbd9d"}`);
+  for (let i = 1; i <= layers; i++) out.push(`${left ? -i : i}px ${i * 0.6}px 0 ${i % 2 ? "var(--edge-1)" : "var(--edge-2)"}`);
   out.push(`${left ? -8 : 8}px 10px 18px rgba(0,0,0,.35)`);
   return out.join(", ");
 }

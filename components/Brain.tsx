@@ -132,7 +132,7 @@ export function Brain({
         clipPath={`url(#${c.clip})`}
         fill={fill ?? (hover === i && canPaint && color ? color : "transparent")}
         fillOpacity={!fill && hover === i ? 0.45 : 1}
-        stroke="#16130f"
+        stroke="var(--stroke-dark)"
         strokeWidth={2.1}
         strokeLinejoin="round"
         data-cell={i}
@@ -154,13 +154,13 @@ export function Brain({
           <path d={CEREBELLUM} />
         </clipPath>
       </defs>
-      <path d={STEM} fill="#efe6cf" stroke="#16130f" strokeWidth={3} strokeLinejoin="round" />
-      <path d={CEREBELLUM} fill="#fbf7ec" />
+      <path d={STEM} fill="var(--stem)" stroke="var(--stroke-dark)" strokeWidth={3} strokeLinejoin="round" />
+      <path d={CEREBELLUM} fill="var(--cell)" />
       {geo.cerebellum.map((c, k) => cell(c, geo.cerebrum.length + k))}
-      <path d={CEREBELLUM} fill="none" stroke="#16130f" strokeWidth={3.4} strokeLinejoin="round" pointerEvents="none" />
-      <path d={CEREBRUM} fill="#fbf7ec" />
+      <path d={CEREBELLUM} fill="none" stroke="var(--stroke-dark)" strokeWidth={3.4} strokeLinejoin="round" pointerEvents="none" />
+      <path d={CEREBRUM} fill="var(--cell)" />
       {geo.cerebrum.map((c, k) => cell(c, k))}
-      <path d={CEREBRUM} fill="none" stroke="#16130f" strokeWidth={3.6} strokeLinejoin="round" pointerEvents="none" />
+      <path d={CEREBRUM} fill="none" stroke="var(--stroke-dark)" strokeWidth={3.6} strokeLinejoin="round" pointerEvents="none" />
     </svg>
   );
 }

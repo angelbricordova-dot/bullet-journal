@@ -52,11 +52,11 @@
   background-size: 100% 10px;
 }
 .paper[data-paper-sample="dots"] i {
-  background-image: radial-gradient(circle, #a9a39a 0.8px, transparent 1.2px);
+  background-image: radial-gradient(circle, var(--dot) 0.8px, transparent 1.2px);
   background-size: 9px 9px;
 }
 .paper[data-paper-sample="grid"] i {
-  background-image: linear-gradient(to right, #d7d3c6 1px, transparent 1px), linear-gradient(to bottom, #d7d3c6 1px, transparent 1px);
+  background-image: linear-gradient(to right, var(--grid-line) 1px, transparent 1px), linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
   background-size: 9px 9px;
 }
 .paper[aria-checked="true"] i {
@@ -281,4 +281,55 @@
   padding: 12px;
   border: 1.5px solid var(--vermilion);
   border-radius: 8px;
+}
+
+/* reading mode: little pages, day / night / half and half */
+.modes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.mode {
+  display: grid;
+  gap: 4px;
+  justify-items: center;
+  padding: 8px 4px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+  text-align: center;
+}
+.mode small {
+  font-size: 0.6875rem;
+  color: var(--ink-3);
+  line-height: 1.25;
+}
+.mode i {
+  width: 100%;
+  max-width: 76px;
+  aspect-ratio: 3 / 4;
+  border-radius: 3px;
+  border: 1px solid var(--paper-edge);
+  --day: linear-gradient(to bottom, transparent 9px, #c9d3dc 9px, #c9d3dc 10px, transparent 10px) 0 0 / 100% 10px, #f4ecda;
+  --night: linear-gradient(to bottom, transparent 9px, #34393f 9px, #34393f 10px, transparent 10px) 0 0 / 100% 10px, #1d1915;
+  transition: transform 180ms var(--ease-out);
+}
+.mode[data-mode="dia"] i { background: var(--day); }
+.mode[data-mode="noche"] i { background: var(--night); }
+.mode[data-mode="auto"] i {
+  background:
+    linear-gradient(135deg, transparent 50%, #1d1915 50%),
+    linear-gradient(to bottom, transparent 9px, #c9d3dc 9px, #c9d3dc 10px, transparent 10px) 0 0 / 100% 10px,
+    #f4ecda;
+}
+.mode[aria-checked="true"] {
+  color: var(--ink);
+  font-weight: 600;
+}
+.mode[aria-checked="true"] i {
+  transform: translateY(-3px);
+  outline: 2px solid var(--brass);
+  outline-offset: 3px;
 }

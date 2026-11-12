@@ -55,6 +55,7 @@ export interface Settings {
   paper: PaperStyle;
   font?: FontSet;
   hints?: boolean;
+  theme?: "dia" | "noche" | "auto";
   ribbon?: number | null;
   startDate: string; // YYYY-MM-DD
   habits: Habit[];

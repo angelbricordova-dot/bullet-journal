@@ -4,13 +4,16 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Maximize2, Minus, Plus, X } from "lucide-react";
 import { addDays, shortDate } from "@/lib/date";
+import { useTheme } from "@/lib/theme";
 import styles from "./weeks.module.css";
 
 /** Your life in weeks, drawn on a canvas (thousands of dots stay light). */
 
-const INK = "#1c2333";
-const RED = "#a8321f";
-const EMPTY = "rgba(28,35,51,.32)";
+function palette() {
+  const cs = getComputedStyle(document.documentElement);
+  const v = (n: string, f: string) => cs.getPropertyValue(n).trim() || f;
+  return { INK: v("--ink", "#1c2333"), RED: v("--vermilion", "#a8321f"), EMPTY: v("--ink-3", "#5f6372") };
+}
 
 function layout(years: number) {
   // in "dot" units: 52 columns in groups of 4, rows grouped by 5 years
@@ -25,10 +28,11 @@ function draw(canvas: HTMLCanvasElement, years: number, lived: number, scale: nu
   canvas.width = Math.round(w * scale * dpr);
   canvas.height = Math.round(h * scale * dpr);
   const g = canvas.getContext("2d")!;
+  const { INK, RED, EMPTY } = palette();
   g.setTransform(dpr * scale, 0, 0, dpr * scale, 0, 0);
   g.clearRect(0, 0, w, h);
   g.font = `0.7px system-ui, sans-serif`;
-  g.fillStyle = "rgba(28,35,51,.55)";
+  g.fillStyle = EMPTY;
   g.textBaseline = "middle";
   for (let r = 0; r < years; r += 5) g.fillText(String(r), 0, rowY(r) + 0.5);
   const R = 0.38;
@@ -47,8 +51,10 @@ function draw(canvas: HTMLCanvasElement, years: number, lived: number, scale: nu
         g.fill();
       } else {
         g.lineWidth = 0.09;
+        g.globalAlpha = 0.42;
         g.strokeStyle = EMPTY;
         g.stroke();
+        g.globalAlpha = 1;
       }
     }
   }
@@ -75,6 +81,7 @@ function weekLabel(i: number, birth: string, lived: number) {
 
 export function WeeksGrid({ years, lived, birth }: { years: number; lived: number; birth: string }) {
   const ref = useRef<HTMLCanvasElement>(null);
+  const { theme } = useTheme();
   const [hover, setHover] = useState<number | null>(null);
   const [open, setOpen] = useState(false);
   const { w, h } = layout(years);
@@ -94,7 +101,7 @@ export function WeeksGrid({ years, lived, birth }: { years: number; lived: numbe
     const ro = new ResizeObserver(paint);
     ro.observe(c.parentElement!);
     return () => ro.disconnect();
-  }, [years, lived, hover, w, h]);
+  }, [years, lived, hover, w, h, theme]);
 
   return (
     <div className={styles.wrap}>

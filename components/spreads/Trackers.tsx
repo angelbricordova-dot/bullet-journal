@@ -122,7 +122,7 @@ export function TrackersSpread() {
           const h = minH + k;
           return (
             <g key={h}>
-              <line x1={24} x2={W - 8} y1={y(h)} y2={y(h)} stroke={h === 8 ? "var(--vermilion)" : "#d7d3c6"} strokeWidth={h === 8 ? 1 : 0.8} strokeDasharray={h === 8 ? "4 3" : undefined} />
+              <line x1={24} x2={W - 8} y1={y(h)} y2={y(h)} stroke={h === 8 ? "var(--vermilion)" : "var(--grid-line)"} strokeWidth={h === 8 ? 1 : 0.8} strokeDasharray={h === 8 ? "4 3" : undefined} />
               {h % 2 === 1 && (
                 <text x={0} y={y(h) + 4} fontSize="10" fill="var(--ink-3)" className="num">
                   {h}h
@@ -132,7 +132,7 @@ export function TrackersSpread() {
           );
         })}
         {dates.map((_, i) => (
-          <line key={i} x1={x(i)} x2={x(i)} y1={8} y2={H - 20} stroke="#e4dfd2" strokeWidth={0.6} />
+          <line key={i} x1={x(i)} x2={x(i)} y1={8} y2={H - 20} stroke="var(--chart-line)" strokeWidth={0.6} />
         ))}
         {segs.map((d, i) => (
           <path key={i} d={d} fill="none" stroke="var(--ink)" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />

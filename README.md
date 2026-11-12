@@ -17,8 +17,9 @@ Un cuaderno de cuero con anillas de latón, en 3D. En PC:
 - Al pasar una hoja, el papel se **curva** como en un cuaderno real.
 - El **marcapáginas** (cinta roja) se pone en la hoja que quieras o se quita con "Marcar hoja" / "Quitar marca"; tocar su punta te lleva a esa hoja.
 - La **letra** del cuaderno se cambia en Ajustes: clásico grabado, romano, máquina de escribir, manuscrito o moderno.
+- **Modo noche** para leer a oscuras: papel carbón, tinta crema y escritorio casi negro. Se cambia con el botón "Noche"/"Día" de abajo, o en Ajustes → Modo (Día, Noche o Automático, que pasa a noche de 7 pm a 6 am). Lo que dibujaste en tinta oscura se ve claro de noche, sin cambiar lo guardado.
 
-En el teléfono es una **libreta de anillas arriba**: papel a todo lo ancho, deslizas a los lados para pasar de hoja (la hoja se levanta sobre las anillas) y las pestañas de cuero de abajo saltan a cada sección. El menú ☰ tiene el índice, el marcapáginas y el sonido; la pluma abre las herramientas. Se ve mejor instalada en la pantalla de inicio ("Agregar a pantalla de inicio").
+En el teléfono es una **libreta de anillas arriba**: papel a todo lo ancho, deslizas a los lados para pasar de hoja (la hoja se levanta sobre las anillas) y las pestañas de cuero de abajo saltan a cada sección. El menú ☰ tiene el índice, el marcapáginas, el sonido y el modo noche; la pluma abre las herramientas. Se ve mejor instalada en la pantalla de inicio ("Agregar a pantalla de inicio").
 
 ## Secciones
 

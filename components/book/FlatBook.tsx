@@ -11,7 +11,7 @@ import { useRibbonControl } from "./ribbon";
 import { flipUp } from "./flipUp";
 import { goSpread, useSpread, useTool } from "@/lib/book";
 import { pageTurn, play } from "@/lib/sfx";
-import { SoundToggle } from "../BookApp";
+import { SoundToggle, ThemeToggle } from "../BookApp";
 import styles from "./flat.module.css";
 
 const LAST = SPREAD_LIST.length - 1;
@@ -264,6 +264,9 @@ export function FlatBook() {
                 )}
                 <li>
                   <SoundToggle className={styles.soundRow} />
+                </li>
+                <li>
+                  <ThemeToggle className={styles.soundRow} long />
                 </li>
                 <li>
                   <button

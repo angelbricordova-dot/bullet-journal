@@ -72,7 +72,7 @@ export function flipUp(host: HTMLElement, source: HTMLElement, from: number, to:
     Object.assign(back.style, {
       position: "absolute",
       inset: "0",
-      background: "linear-gradient(#efe6d0, #e7dcc2)",
+      background: "linear-gradient(var(--sheet-back), var(--sheet-back-2))",
       transform: "rotateX(180deg)",
       backfaceVisibility: "hidden",
     });

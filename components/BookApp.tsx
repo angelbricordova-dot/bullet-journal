@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BookCopy, BookmarkPlus, BookmarkX, Eye, EyeOff, ChevronLeft, ChevronRight, Download, LifeBuoy, PanelLeftClose, PanelLeftOpen, RotateCcw, Volume2, VolumeX } from "lucide-react";
+import { BookCopy, BookmarkPlus, BookmarkX, Eye, EyeOff, ChevronLeft, ChevronRight, Download, LifeBuoy, PanelLeftClose, PanelLeftOpen, RotateCcw, Moon, Sun, Volume2, VolumeX } from "lucide-react";
 import { Book3D, DEFAULT_VIEW, useView } from "./book/Book3D";
 import { FlatBook } from "./book/FlatBook";
 import { ToolPanel } from "./book/Tools";
@@ -10,6 +10,7 @@ import { useRibbonControl } from "./book/ribbon";
 import { SosSheet } from "./SosSheet";
 import { useHydrated } from "@/lib/useHydrated";
 import { useSettings } from "@/lib/hooks";
+import { useTheme } from "@/lib/theme";
 import { redo, undo, useSyncState } from "@/lib/client-store";
 import { goSpread, useSpread, useTool } from "@/lib/book";
 import { getShared, setShared, useShared } from "@/lib/shared";
@@ -68,6 +69,29 @@ export function SoundToggle({ className }: { className?: string }) {
   );
 }
 
+export function ThemeToggle({ className, long }: { className?: string; long?: boolean }) {
+  const { theme, setChoice } = useTheme();
+  const night = theme === "noche";
+  return (
+    <button
+      className={className}
+      onClick={() => {
+        const next = night ? "dia" : "noche";
+        const apply = () => {
+          document.documentElement.dataset.theme = next;
+          setChoice(next);
+        };
+        // a soft cross-fade, like dimming a lamp
+        const doc = document as Document & { startViewTransition?: (cb: () => void) => unknown };
+        if (doc.startViewTransition && !matchMedia("(prefers-reduced-motion: reduce)").matches) doc.startViewTransition(apply);
+        else apply();
+      }}
+      aria-pressed={night} title={night ? "Volver al modo día" : "Modo noche para leer a oscuras"}>
+      {night ? <Sun aria-hidden /> : <Moon aria-hidden />} {long ? (night ? "Pasar a modo día" : "Pasar a modo noche") : night ? "Día" : "Noche"}
+    </button>
+  );
+}
+
 function RibbonButton({ cur }: { cur: number }) {
   const { here, toggle } = useRibbonControl(cur);
   return (
@@ -91,6 +115,12 @@ export function BookApp() {
     d.dataset.font = settings.font ?? "clasico";
     d.dataset.hints = settings.hints === false ? "off" : "on";
   }, [settings.cover, settings.paper, settings.font, settings.hints]);
+
+  const { theme } = useTheme();
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "noche" ? "#0b0806" : "#15100c");
+  }, [theme]);
 
   // sounds: warm up on first touch; soft pen while typing on a page
   useEffect(() => {
@@ -201,6 +231,7 @@ function Desk({ onSos, pw, ph, side }: { onSos: () => void; pw: number; ph: numb
         </button>
         {!shut && <RibbonButton cur={cur} />}
         <SoundToggle />
+        <ThemeToggle />
         <button
           onClick={() => {
             setTool("none");

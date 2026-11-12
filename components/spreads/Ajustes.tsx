@@ -7,6 +7,7 @@ import { useSettings } from "@/lib/hooks";
 import { flushAll } from "@/lib/client-store";
 import { uid } from "@/lib/date";
 import type { CoverColor, FontSet, Habit, PaperStyle, Settings } from "@/lib/types";
+import type { ThemeChoice } from "@/lib/theme";
 import styles from "./ajustes.module.css";
 
 const COVERS: { id: CoverColor; label: string }[] = [
@@ -21,6 +22,12 @@ const FONTS: { id: FontSet; label: string; head: string }[] = [
   { id: "maquina", label: "Máquina de escribir", head: "Bitácora" },
   { id: "manuscrito", label: "Manuscrito", head: "Bitácora" },
   { id: "moderno", label: "Moderno", head: "Bitácora" },
+];
+
+const MODES: { id: ThemeChoice; label: string; sub: string }[] = [
+  { id: "dia", label: "Día", sub: "Papel crema" },
+  { id: "noche", label: "Noche", sub: "Para leer a oscuras" },
+  { id: "auto", label: "Automático", sub: "Noche de 7 pm a 6 am" },
 ];
 
 const PAPERS: { id: PaperStyle; label: string }[] = [
@@ -82,6 +89,17 @@ export function AjustesSpread() {
           <button key={p.id} role="radio" aria-checked={s.paper === p.id} className={styles.paper} data-paper-sample={p.id} onClick={() => set({ paper: p.id })}>
             <i aria-hidden />
             <span>{p.label}</span>
+          </button>
+        ))}
+      </div>
+
+      <h2 className="h-sec">Modo</h2>
+      <div className={styles.modes} role="radiogroup" aria-label="Modo de lectura">
+        {MODES.map((m) => (
+          <button key={m.id} role="radio" aria-checked={(s.theme ?? "dia") === m.id} className={styles.mode} data-mode={m.id} onClick={() => set({ theme: m.id })}>
+            <i aria-hidden />
+            <span>{m.label}</span>
+            <small>{m.sub}</small>
           </button>
         ))}
       </div>
