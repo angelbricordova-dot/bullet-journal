@@ -1,25 +1,27 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { LifeBuoy, MoreHorizontal, PenLine, X } from "lucide-react";
+import { Bookmark, BookmarkPlus, BookmarkX, LifeBuoy, MoreHorizontal, PenLine, X } from "lucide-react";
 import { FaceCtx } from "../Pages";
 import { SPREAD_LIST } from "./spreads";
 import { SPREAD_COMPONENTS } from "./registry";
 import { CoverFront } from "./Cover";
 import { ToolPanel } from "./Tools";
+import { useRibbonControl } from "./ribbon";
 import { goSpread, useSpread, useTool } from "@/lib/book";
-import { play } from "@/lib/sfx";
+import { pageTurn, play } from "@/lib/sfx";
 import { SoundToggle } from "../BookApp";
 import styles from "./flat.module.css";
 
 const MAIN = [1, 2, 3, 4, 5];
-const MORE = [0, 6, 7, 8, 9];
+const MORE = [0, 6, 7, 8];
 
 /** Phone: one page at a time, same notebook. */
 export function FlatBook({ onSos }: { onSos: () => void }) {
   const [cur] = useSpread();
   const [tool, setTool] = useTool();
   const [sheet, setSheet] = useState<null | "tools" | "more">(null);
+  const rib = useRibbonControl(cur);
   const scroller = useRef<HTMLDivElement>(null);
   const prevCur = useRef(cur);
 
@@ -28,7 +30,7 @@ export function FlatBook({ onSos }: { onSos: () => void }) {
     if (prevCur.current !== cur) {
       if (prevCur.current < 0) play("book-open");
       else if (cur < 0) play("book-close");
-      else play(Math.random() < 0.5 ? "page-turn" : "page-turn-2", { volume: 0.8 });
+      else pageTurn(0.8);
       prevCur.current = cur;
     }
   }, [cur]);
@@ -129,6 +131,36 @@ export function FlatBook({ onSos }: { onSos: () => void }) {
                     </li>
                   );
                 })}
+                <li>
+                  <button
+                    onClick={() => {
+                      rib.toggle();
+                      setSheet(null);
+                    }}
+                  >
+                    {rib.here ? <BookmarkX aria-hidden /> : <BookmarkPlus aria-hidden />}
+                    <span>
+                      <b>{rib.here ? "Quitar marcapáginas" : "Marcar esta hoja"}</b>
+                      <small>{rib.ribbon !== null && !rib.here ? `Ahora marca: ${SPREAD_LIST[rib.ribbon]?.label}` : "La cinta roja guarda tu lugar"}</small>
+                    </span>
+                  </button>
+                </li>
+                {rib.ribbon !== null && !rib.here && (
+                  <li>
+                    <button
+                      onClick={() => {
+                        goSpread(rib.ribbon!);
+                        setSheet(null);
+                      }}
+                    >
+                      <Bookmark aria-hidden />
+                      <span>
+                        <b>Ir a la hoja marcada</b>
+                        <small>{SPREAD_LIST[rib.ribbon]?.label}</small>
+                      </span>
+                    </button>
+                  </li>
+                )}
                 <li>
                   <SoundToggle className={styles.soundRow} />
                 </li>

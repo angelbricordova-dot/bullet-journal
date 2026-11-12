@@ -117,7 +117,7 @@ export function RapidLog({
                     onClick={() => {
                       update(b.id, { state: "migrated" });
                       onMigrate(b);
-                      play("page-turn-2", { volume: 0.4, duration: 0.3 });
+                      play("ribbon", { volume: 0.5 });
                     }}
                     title="Pasar a mañana"
                     aria-label={`Pasar a mañana: ${b.text}`}

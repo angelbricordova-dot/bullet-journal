@@ -8,7 +8,8 @@ import { CoverFront } from "./Cover";
 import { goSpread, useSpread, useTool } from "@/lib/book";
 import { useShared } from "@/lib/shared";
 import { drag as dragPointer } from "@/lib/drag";
-import { play } from "@/lib/sfx";
+import { pageTurn, play } from "@/lib/sfx";
+import { useRibbon } from "./ribbon";
 import { Curl } from "./curl";
 import styles from "./book3d.module.css";
 
@@ -21,8 +22,10 @@ export interface View {
   rx: number;
   ry: number;
   zoom: number;
+  px?: number;
+  py?: number;
 }
-export const DEFAULT_VIEW: View = { rx: 12, ry: 0, zoom: 1 };
+export const DEFAULT_VIEW: View = { rx: 12, ry: 0, zoom: 1, px: 0, py: 0 };
 
 export function useView() {
   return useShared<View>("book:view", DEFAULT_VIEW);
@@ -83,7 +86,9 @@ export function Book3D({ pw, ph, offsetX = 0 }: { pw: number; ph: number; offset
   const curlRef = useRef<{ curl: Curl; leaf: HTMLElement } | null>(null);
   const skipCurl = useRef<number | null>(null);
   const [instantLeaf, setInstantLeaf] = useState<number | null>(null);
+  const [panning, setPanning] = useState(false);
   const closed = cur < 0;
+  const ribbon = useRibbon();
 
   const leafEl = (j: number) => bookRef.current?.querySelector<HTMLElement>(`[data-leaf="${j}"]`) ?? null;
   const endCurl = () => {
@@ -123,12 +128,12 @@ export function Book3D({ pw, ph, offsetX = 0 }: { pw: number; ph: number; offset
       if (curl) {
         const dir = step > 0 ? 1 : -1;
         curl.set(step > 0 ? 0 : 1, dir);
-        play(Math.random() < 0.5 ? "page-turn" : "page-turn-2");
+        pageTurn();
         void curl.animate(step > 0 ? 1 : 0, dir).then(endCurl);
       }
     } else if (Math.abs(step) > 1 && Math.min(cur, was) >= 0) {
       const n = Math.min(4, Math.abs(step));
-      for (let i = 0; i < n; i++) setTimeout(() => play("page-turn-2", { volume: 0.7 }), i * 90);
+      for (let i = 0; i < n; i++) setTimeout(() => pageTurn(0.55), i * 110);
     }
     const t = setTimeout(() => setFrom(cur), 1400);
     return () => clearTimeout(t);
@@ -173,6 +178,24 @@ export function Book3D({ pw, ph, offsetX = 0 }: { pw: number; ph: number; offset
   const visible = (s: number) => Math.abs(s - cur) <= 1 || Math.abs(s - from) <= 1;
 
   /* ---- rotate the whole book by dragging the desk ---- */
+  /* ---- right button: slide the book around the desk ---- */
+  function onPanDown(e: React.PointerEvent) {
+    if (e.button !== 2) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const v0 = view;
+    setPanning(true);
+    document.body.style.cursor = "grabbing";
+    dragPointer(
+      e,
+      (_ev, dx, dy) => setView({ ...v0, px: (v0.px ?? 0) + dx, py: (v0.py ?? 0) + dy }),
+      () => {
+        document.body.style.cursor = "";
+        setPanning(false);
+      },
+    );
+  }
+
   function onSceneDown(e: React.PointerEvent) {
     if (e.button !== 0) return;
     if (e.target !== e.currentTarget && !(e.target as HTMLElement).dataset.desk) return;
@@ -216,7 +239,7 @@ export function Book3D({ pw, ph, offsetX = 0 }: { pw: number; ph: number; offset
         vel = ev.clientX - lastX;
         lastX = ev.clientX;
         if (!soundPlayed) {
-          play("page-turn", { volume: 0.8 });
+          pageTurn(0.8);
           soundPlayed = true;
         }
         if (curl) curl.set(p, sign);
@@ -279,8 +302,17 @@ export function Book3D({ pw, ph, offsetX = 0 }: { pw: number; ph: number; offset
   const rightCount = LEAVES - Math.max(0, cur);
 
   return (
-    <div ref={sceneRef} className={styles.scene} onPointerDown={onSceneDown} data-desk="1">
-      <div className={styles.pos} style={{ transform: `translateX(${offsetX + (closed ? -pw / 2 : 0)}px)` }} data-desk="1">
+    <div
+      ref={sceneRef}
+      className={styles.scene}
+      onPointerDown={onSceneDown}
+      onPointerDownCapture={onPanDown}
+      onContextMenu={(e) => {
+        if (!(e.target as HTMLElement).closest("input, textarea")) e.preventDefault();
+      }}
+      data-desk="1"
+    >
+      <div className={styles.pos} style={{ transform: `translate(${offsetX + (view.px ?? 0) + (closed ? -pw / 2 : 0)}px, ${view.py ?? 0}px)`, transition: panning ? "none" : undefined }} data-desk="1">
       <div ref={bookRef} className={styles.book} style={bookStyle} data-closed={closed || undefined} data-spread={cur}>
         <div className={styles.backCover} />
         <div className={styles.spine} ref={spineRef} />
@@ -321,7 +353,15 @@ export function Book3D({ pw, ph, offsetX = 0 }: { pw: number; ph: number; offset
 
         {!closed && cur < LEAVES && <div className={`${styles.grab} ${styles.grabR}`} onPointerDown={(e) => onGrab(e, "fwd")} title="Arrastra para pasar la hoja" />}
         {!closed && cur >= 0 && <div className={`${styles.grab} ${styles.grabL}`} onPointerDown={(e) => onGrab(e, "back")} title="Arrastra para volver" />}
-        <div className={styles.ribbon} data-full={cur === 1 || undefined} aria-hidden />
+        <button
+          className={styles.ribbon}
+          data-state={ribbon === null ? "off" : !closed && cur === ribbon ? "full" : "tail"}
+          onClick={() => ribbon !== null && cur !== ribbon && goSpread(ribbon)}
+          onPointerDown={(e) => e.stopPropagation()}
+          tabIndex={ribbon !== null && cur !== ribbon ? 0 : -1}
+          aria-label={ribbon !== null ? `Ir a la hoja marcada: ${SPREAD_LIST[ribbon]?.label}` : "Sin marcapáginas"}
+          title={ribbon !== null ? `Marcapáginas: ${SPREAD_LIST[ribbon]?.label}` : undefined}
+        />
       </div>
       </div>
     </div>

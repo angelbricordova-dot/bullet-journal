@@ -46,12 +46,15 @@ export interface ImportantDate {
 
 export type CoverColor = "oxblood" | "saddle" | "black" | "green";
 export type PaperStyle = "ruled" | "dots" | "grid" | "plain";
+export type FontSet = "clasico" | "romano" | "maquina" | "manuscrito" | "moderno";
 
 export interface Settings {
   owner: string;
   initials: string;
   cover: CoverColor;
   paper: PaperStyle;
+  font?: FontSet;
+  ribbon?: number | null;
   startDate: string; // YYYY-MM-DD
   habits: Habit[];
   reasons: string[];
@@ -76,6 +79,7 @@ export interface Challenge {
   target: number; // days
   falls: Fall[];
   wins: string[]; // ISO datetimes of temptations overcome
+  cells?: Record<string, string>; // brain cell index → colour (one per clean day)
   archived?: boolean;
 }
 
@@ -85,6 +89,8 @@ export interface Prayer {
   date: string; // YYYY-MM-DD
   answered?: string; // YYYY-MM-DD
   answerNote?: string;
+  prayed?: string[]; // YYYY-MM-DD days you prayed for it
+  note?: string;
 }
 
 export interface BoardMeta {

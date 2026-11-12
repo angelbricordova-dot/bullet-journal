@@ -6,7 +6,8 @@ import { MonthNav } from "./Mes";
 import { useSettings } from "@/lib/hooks";
 import { ensureLoaded, useDocList, writeDoc } from "@/lib/client-store";
 import { emptyDay } from "@/lib/defaults";
-import { useBookMonth } from "@/lib/book";
+import { useBookDate, useBookMonth } from "@/lib/book";
+import { SleepMood } from "@/components/Checkin";
 import { monthInfo } from "@/lib/month";
 import { todayYmd } from "@/lib/date";
 import type { DayDoc } from "@/lib/types";
@@ -38,6 +39,7 @@ async function toggleHabit(date: string, id: string) {
 
 export function TrackersSpread() {
   const [ym] = useBookMonth();
+  const [bookDate] = useBookDate();
   const mi = monthInfo(ym);
   const [settings] = useSettings();
   const { items: days } = useDocList<DayDoc>(`day:${ym}`);
@@ -108,7 +110,9 @@ export function TrackersSpread() {
 
   const right = (
     <div>
-      <h2 className="h-page">Sueño</h2>
+      <h2 className="h-page">Sueño y ánimo</h2>
+      <SleepMood date={bookDate} />
+      <h3 className="h-sec">El mes</h3>
       <p className={styles.avg}>
         Promedio del mes: <b className="num">{avg ? `${avg.toFixed(1)} h` : "—"}</b>
         <span className="caption"> · se calcula con “me dormí” y “me levanté” de cada día</span>

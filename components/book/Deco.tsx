@@ -4,8 +4,8 @@ import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "re
 import { GripVertical, Maximize2, RotateCw, X } from "lucide-react";
 import { ensureLoaded, useDoc, writeDoc } from "@/lib/client-store";
 import { SHAPE_TOOLS, useHighlight, useInk, useSize, useTapeStyle, useTool, type TapeStyle } from "@/lib/book";
-import { play, startLoop, stopLoop } from "@/lib/sfx";
-import { drag } from "@/lib/drag";
+import { play, setLoopLevel, startLoop, stopLoop, tapeSound } from "@/lib/sfx";
+import { drag, now } from "@/lib/drag";
 import { uid } from "@/lib/date";
 import { tilt } from "@/lib/random";
 import { STICKER_NODES } from "../Stickers";
@@ -103,7 +103,8 @@ export function placeOnActivePage(item: NewItem) {
   const cy = (Math.max(r.top, 0) + Math.min(r.bottom, innerHeight)) / 2;
   const p = localPoint(host, cx + (Math.random() - 0.5) * 40, cy + (Math.random() - 0.5) * 40);
   void addTo(host.dataset.decoHost!, { ...item, id: uid(), ...p });
-  play(item.type === "photo" ? "photo" : item.type === "tape" ? "tape" : "paper-place");
+  if (item.type === "tape") tapeSound(item.style ?? "kraft");
+  else play(item.type === "photo" ? "photo" : "paper-place");
 }
 
 /* ---------- rendering helpers ---------- */
@@ -194,6 +195,7 @@ export function Deco({ id }: { id: string }) {
   const [dragging, setDragging] = useState<{ id: string; patch: Partial<DecoItem> } | null>(null);
 
   const items = doc.items ?? [];
+  const shownSel = tool !== "none" ? null : sel;
   const strokes = doc.strokes ?? [];
   const W = dim.w;
   const k = W / BASE_W;
@@ -216,6 +218,20 @@ export function Deco({ id }: { id: string }) {
     setDoc((d) => ({ ...EMPTY, ...d, items: (d.items ?? []).filter((x) => x.id !== itemId) }));
     setSel(null);
   };
+
+  // the move/turn/size frame only shows while you're working on that piece
+  useEffect(() => {
+    if (!sel) return;
+    const onDown = (e: PointerEvent) => {
+      const t = e.target as HTMLElement;
+      if (!t.closest(`[data-item-id="${sel}"]`)) setSel(null);
+    };
+    const t = setTimeout(() => document.addEventListener("pointerdown", onDown, true), 0);
+    return () => {
+      clearTimeout(t);
+      document.removeEventListener("pointerdown", onDown, true);
+    };
+  }, [sel]);
 
   useEffect(() => {
     if (!sel) return;
@@ -253,10 +269,21 @@ export function Deco({ id }: { id: string }) {
     if (tool === "eraser") {
       startLoop("eraser");
       erase(p0.x, p0.y);
-      drag(e, (ev) => {
-        const p = localPoint(host(), ev.clientX, ev.clientY);
-        erase(p.x, p.y);
-      }, () => stopLoop());
+      let lastE = now();
+      const dog = setInterval(() => now() - lastE > 80 && setLoopLevel(0), 40);
+      drag(
+        e,
+        (ev) => {
+          lastE = now();
+          setLoopLevel(0.85);
+          const p = localPoint(host(), ev.clientX, ev.clientY);
+          erase(p.x, p.y);
+        },
+        () => {
+          clearInterval(dog);
+          stopLoop();
+        },
+      );
       return;
     }
 
@@ -283,7 +310,7 @@ export function Deco({ id }: { id: string }) {
           }
           const it: DecoItem = { id: uid(), type: "tape", style: tapeStyle, len, x: cx, y: cy, rot: Math.round(rot), scale: 1 };
           setDoc((d) => ({ ...EMPTY, ...d, items: [...(d.items ?? []), it] }));
-          play("tape");
+          tapeSound(tapeStyle);
         },
       );
       return;
@@ -301,11 +328,29 @@ export function Deco({ id }: { id: string }) {
     };
     let cur = stroke;
     setLive(cur);
-    if (!shape) startLoop(mode === "marker" ? "marker" : mode === "pencil" ? "pencil" : "pen");
+    // the scratch follows the hand: silent while the pen rests, louder as it moves
+    let lastT = now();
+    let lastX = e.clientX;
+    let lastY = e.clientY;
+    let watchdog: ReturnType<typeof setInterval> | null = null;
+    if (!shape) {
+      startLoop(mode === "marker" ? "marker-write" : mode === "pencil" ? "pencil-write" : "pen-write");
+      watchdog = setInterval(() => {
+        if (now() - lastT > 70) setLoopLevel(0);
+      }, 40);
+    }
     drag(
       e,
       (ev) => {
         const p = localPoint(host(), ev.clientX, ev.clientY);
+        if (!shape) {
+          const t = now();
+          const v = Math.hypot(ev.clientX - lastX, ev.clientY - lastY) / Math.max(8, t - lastT);
+          setLoopLevel(Math.min(1, Math.pow(v / 0.9, 0.7)));
+          lastT = t;
+          lastX = ev.clientX;
+          lastY = ev.clientY;
+        }
         if (shape) {
           let x1 = p.x;
           let y1 = p.y;
@@ -323,11 +368,12 @@ export function Deco({ id }: { id: string }) {
         setLive(cur);
       },
       () => {
+        if (watchdog) clearInterval(watchdog);
         stopLoop();
         setLive(null);
         const tiny = shape && Math.hypot(cur.pts[2] - cur.pts[0], cur.pts[3] - cur.pts[1]) < 4 / W;
         if (tiny) return;
-        if (shape) play("pen", { duration: 0.22 });
+        if (shape) play("pen-write", { duration: 0.25, volume: 0.8 });
         const s = cur;
         setDoc((d) => ({ ...EMPTY, ...d, strokes: [...(d.strokes ?? []), s] }));
       },
@@ -474,7 +520,8 @@ export function Deco({ id }: { id: string }) {
             key={it.id}
             className={styles.item}
             data-type={it.type}
-            data-sel={sel === it.id || undefined}
+            data-item-id={it.id}
+            data-sel={shownSel === it.id || undefined}
             data-drag={dragging?.id === it.id || undefined}
             style={{ left: it.x * W, top: it.y * W, transform: `translate(-50%, -50%) rotate(${it.rot}deg) scale(${it.scale * k})` }}
             onPointerDown={(e) => onItemDown(e, it0, "move")}
@@ -487,7 +534,7 @@ export function Deco({ id }: { id: string }) {
                 <GripVertical />
               </span>
             )}
-            {sel === it.id && !active && (
+            {shownSel === it.id && !active && (
               <>
                 <button className={`${styles.handle} ${styles.del}`} onPointerDown={(e) => e.stopPropagation()} onClick={() => remove(it.id)} aria-label={`Quitar ${label}`}>
                   <X />

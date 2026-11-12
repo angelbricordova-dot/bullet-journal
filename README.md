@@ -8,11 +8,13 @@ Un cuaderno de cuero con anillas de latón, en 3D. En PC:
 
 - La **portada** siempre muestra el mes, los días que quedan y el día del año. Tócala para abrir.
 - **Pasa las hojas** arrastrando la esquina, con las pestañas de cada hoja, con las flechas del teclado o con los botones de abajo.
-- **Arrastra el escritorio** para girar el cuaderno y usa la **rueda** para acercar o alejar. "Vista" lo endereza.
+- **Arrastra el escritorio** con el botón izquierdo para girar el cuaderno, con el **derecho** para moverlo de lugar, y usa la **rueda** para acercar o alejar. "Vista" lo endereza.
 - A la izquierda están las **herramientas** (se ocultan con un botón): pluma, lápiz y resaltador con colores y grosores; línea, flecha, rectángulo y círculo; texto; nota adhesiva; **cinta** que estiras sobre la página (kraft, negra, tela roja, lino, mate); fotos y borrador. Todo funciona en cualquier página o en la portada, y se mueve, gira, agranda y despega.
 - **Ctrl+Z** deshace y **Ctrl+Shift+Z** (o Ctrl+Y) rehace.
 - **Sonidos** de papel y cuero al pasar hojas, abrir y cerrar, escribir, dibujar, borrar, pegar cinta y marcar como hecho. Se silencian con el botón "Sonido".
-- Al pasar una hoja, el papel se **curva** como en un cuaderno real; la cinta roja marca la página de Hoy.
+- Al pasar una hoja, el papel se **curva** como en un cuaderno real.
+- El **marcapáginas** (cinta roja) se pone en la hoja que quieras o se quita con "Marcar hoja" / "Quitar marca"; tocar su punta te lleva a esa hoja.
+- La **letra** del cuaderno se cambia en Ajustes: clásico grabado, romano, máquina de escribir, manuscrito o moderno.
 
 En el teléfono es una página a la vez, con las mismas secciones y las herramientas en el botón de latón.
 
@@ -21,13 +23,12 @@ En el teléfono es una página a la vez, con las mismas secciones y las herramie
 | Hoja | Qué tiene |
 |---|---|
 | **Índice** | Dentro de la portada: a quién pertenece, el mes, los días que quedan, el año y el índice. |
-| **Hoy** | Pendientes (se marcan como hechos, pasan a mañana o se traen de ayer), hábitos con la semana, sueño, ánimo, gratitud, lectura bíblica y fechas importantes. |
+| **Hoy** | Pendientes (se marcan como hechos, pasan a mañana o se traen de ayer), hábitos con la semana, lo que pasó hoy y fechas importantes. |
 | **Mes** | "Bienvenido noviembre", metas del mes y calendario donde escribes en cada día. |
-| **Trackers** | Hábitos con puntos por día (se marcan ahí mismo), gráfica de sueño, ánimo y hora de despertar. |
-| **Retos** | Pureza como un cerebro de 90 celdas que se pinta un día a la vez; caídas con reflexión y victorias; rachas de disciplina con marcas de conteo. |
+| **Trackers** | Sueño y ánimo del día, hábitos con puntos por día, gráfica de sueño del mes y hora de despertar. |
+| **Retos** | Pureza como un cerebro de 90 celdas: cada día limpio te da una celda y tú eliges cuál y de qué color; si caes, se vacía. Rachas de disciplina con barra por días. |
 | **Vida** | Tu vida en semanas (52 por año) y "Esta semana" día por día. |
-| **Fe** | Versículo del día (RVR1960), versículos por tema y diario de oración. |
-| **Libros** | Lista de lecturas y una hoja libre. |
+| **Fe** | Versículo del día (RVR1960), lectura bíblica, gratitud, versículos por tema y diario de oración (toca una petición para abrirla, marca "Oré por esto hoy" o "Respondida"). |
 | **Resumen** | El mes en números, tu resumen y "Mirando atrás": lo que aprendiste, lo que agradeces y lo que viene. |
 | **Ajustes** | Color del cuero, papel, hábitos, razones, fechas y copia de seguridad. |
 

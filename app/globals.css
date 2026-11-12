@@ -45,6 +45,34 @@
   color-scheme: light;
 }
 
+/* type sets (Ajustes → Letra) */
+[data-font="romano"] {
+  --font-engraved: var(--font-cinzel), serif;
+  --font-ui: var(--font-spectral), Georgia, serif;
+  --font-fell: var(--font-spectral), Georgia, serif;
+}
+[data-font="maquina"] {
+  --font-engraved: var(--font-elite), monospace;
+  --font-ui: var(--font-courier), monospace;
+  --font-fell: var(--font-courier), monospace;
+}
+[data-font="manuscrito"] {
+  --font-engraved: var(--font-kalam), cursive;
+  --font-ui: var(--font-kalam), cursive;
+  --font-fell: var(--font-kalam), cursive;
+}
+[data-font="moderno"] {
+  --font-engraved: var(--font-oswald), sans-serif;
+  --font-ui: var(--font-archivo), sans-serif;
+  --font-fell: var(--font-archivo), sans-serif;
+}
+[data-font="moderno"] .engraved,
+[data-font="moderno"] .h-page,
+[data-font="moderno"] .h-sec {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
 [data-cover="saddle"] {
   --leather: #6b3a1c;
   --leather-hi: #8a5129;
@@ -275,6 +303,7 @@ button:disabled {
   background: color-mix(in oklab, var(--leather-lo) 70%, #120c08);
   color: var(--leather-ink);
   font-size: 0.8125rem;
+  white-space: nowrap;
   text-decoration: none;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.45);
   transition: background-color 140ms, transform 120ms var(--ease-out);

@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Archive, Check, Plus, RotateCcw } from "lucide-react";
+import { Archive, Check, Eraser, Plus, RotateCcw } from "lucide-react";
 import { Pages } from "@/components/Pages";
-import { Tally } from "@/components/Tally";
+import { Segments } from "@/components/Segments";
 import { HabitCheck } from "@/components/HabitCheck";
 import { Figs } from "@/components/Figs";
-import { Brain } from "@/components/Brain";
+import { BRAIN_PALETTE, Brain } from "@/components/Brain";
 import { useChallenges, useDay, useSettings } from "@/lib/hooks";
 import { useDocList } from "@/lib/client-store";
 import { challengeBest, challengeDays, abstainNow } from "@/lib/streaks";
@@ -99,9 +99,12 @@ export function RetosSpread() {
                   <b className="num">{n}</b> / <span className="num">{c.target}</span>
                 </span>
               </div>
-              <Tally value={n} target={c.target} label={c.name} />
+              {c.why && <p className={styles.why}>{c.why}</p>}
+              <Segments value={n} target={c.target} label={c.name} />
               <div className={styles.rowFoot}>
-                <span className="caption">Mejor racha: <span className="num">{challengeBest(c, history)}</span></span>
+                <span className="caption">
+                  {n >= c.target ? "¡Meta cumplida! " : `Faltan ${c.target - n} días · `}mejor racha <span className="num">{challengeBest(c, history)}</span>
+                </span>
                 <button className={styles.linkBtn} onClick={() => confirm(`¿Archivar “${c.name}”?`) && patch(c.id, { archived: true })}>
                   <Archive aria-hidden /> Archivar
                 </button>
@@ -165,6 +168,10 @@ function BrainPage({
   const [plan, setPlan] = useState("");
   const [won, setWon] = useState(false);
   const { days, hours } = abstainNow(c);
+  const painted = c.cells ?? {};
+  const count = Object.keys(painted).length;
+  const available = Math.max(0, Math.min(days, c.target) - count);
+  const [brush, setBrush] = useShared<string | null>("retos:brush", BRAIN_PALETTE[3]);
   const best = challengeBest(c, {});
 
   function fall() {
@@ -173,7 +180,7 @@ function BrainPage({
       triggers.length > 0 && `Detonante: ${triggers.join(", ")}`,
       plan.trim() && `La próxima vez: ${plan.trim()}`,
     ].filter(Boolean);
-    onPatch({ falls: [...c.falls, { date: new Date().toISOString(), note: parts.join("\n") }] });
+    onPatch({ falls: [...c.falls, { date: new Date().toISOString(), note: parts.join("\n") }], cells: {} });
     setFalling(false);
     setWhat("");
     setTriggers([]);
@@ -205,18 +212,46 @@ function BrainPage({
       <p className="quote" style={{ fontSize: "1rem" }}>{c.why}</p>
 
       <div className={styles.brainWrap}>
-        <Brain filled={days} total={c.target} label={`${c.name}, cerebro de ${c.target} días`} />
+        <Brain
+          total={c.target}
+          painted={painted}
+          available={available}
+          color={brush}
+          label={`${c.name}, cerebro de ${c.target} celdas`}
+          onPaint={(i, col) => {
+            const next = { ...painted };
+            if (col === null) delete next[i];
+            else next[i] = col;
+            play("paint");
+            onPatch({ cells: next });
+          }}
+        />
       </div>
+
+      <div className={styles.palette} role="radiogroup" aria-label="Color para pintar">
+        {BRAIN_PALETTE.map((col) => (
+          <button key={col} role="radio" aria-checked={brush === col} className={styles.swatch} style={{ background: col }} onClick={() => setBrush(col)} aria-label={`Color ${col}`} />
+        ))}
+        <button role="radio" aria-checked={brush === null} className={styles.eraseSwatch} onClick={() => setBrush(null)} aria-label="Despintar" title="Despintar una celda">
+          <Eraser aria-hidden />
+        </button>
+      </div>
+      <p className={styles.paintHint} aria-live="polite">
+        {available > 0
+          ? `Tienes ${available} ${available === 1 ? "celda" : "celdas"} por pintar. Elige un color y toca la que quieras.`
+          : count >= c.target
+            ? "Tu mente está completa. Sigue firme."
+            : "Cada día limpio te da una celda nueva. Vuelve mañana."}
+      </p>
 
       <div className={styles.dayLine}>
         <span className={styles.days}>
           <b className="num">{days}</b> {days === 1 ? "día" : "días"} <span className="num">{hours} h</span>
         </span>
         <span className="caption">
-          <span className="num">{Math.min(days, c.target)}</span> de <span className="num">{c.target}</span> celdas · mejor racha <span className="num">{best}</span> · <span className="num">{c.wins.length}</span> victorias
+          <span className="num">{count}</span> de <span className="num">{c.target}</span> celdas pintadas · mejor racha <span className="num">{best}</span> · <span className="num">{c.wins.length}</span> victorias
         </span>
       </div>
-      <p className="caption" style={{ marginTop: 4 }}>Cada día limpio pinta una celda. Tu mente se va llenando de color otra vez.</p>
 
       <div className={styles.actions}>
         <button className="ink-btn" onClick={win}>
@@ -234,7 +269,7 @@ function BrainPage({
           <p className="engraved"><Figs>{RISE.ref}</Figs></p>
           <p className="quote" style={{ marginTop: 10 }}>{CLEAN.text}</p>
           <p className="engraved"><Figs>{CLEAN.ref}</Figs></p>
-          <p className={styles.riseNote}>El cerebro empieza otra vez desde hoy. Levántate.</p>
+          <p className={styles.riseNote}>El cerebro se vacía y empieza otra vez desde hoy. Levántate.</p>
           <button className={styles.linkBtn} onClick={() => setJustFell(false)}>Entendido</button>
         </div>
       )}

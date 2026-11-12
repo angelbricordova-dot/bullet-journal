@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Check, Plus, RotateCcw, Shuffle, Trash2 } from "lucide-react";
+import { Check, HandHeart, Plus, RotateCcw, Shuffle, Trash2 } from "lucide-react";
 import { Pages } from "@/components/Pages";
 import { Figs } from "@/components/Figs";
 import { usePrayers } from "@/lib/hooks";
@@ -9,8 +9,11 @@ import { useDocList } from "@/lib/client-store";
 import { VERSES, verseForDay, type Verse } from "@/lib/verses";
 import { pickRandom } from "@/lib/random";
 import { addDays, shortDate, todayYmd, uid } from "@/lib/date";
-import type { DayDoc } from "@/lib/types";
+import type { DayDoc, Prayer } from "@/lib/types";
+import { play } from "@/lib/sfx";
 import { useShared } from "@/lib/shared";
+import { GratitudeReading } from "@/components/Checkin";
+import { useBookDate } from "@/lib/book";
 import styles from "./fe.module.css";
 
 const THEMES: { tag: Verse["tags"][number]; label: string }[] = [
@@ -23,12 +26,13 @@ const THEMES: { tag: Verse["tags"][number]; label: string }[] = [
 ];
 
 export function FeSpread() {
+  const [bookDate] = useBookDate();
   const today = todayYmd();
   const [theme, setTheme] = useState<Verse["tags"][number] | null>(null);
   const [pick, setPick] = useState<Verse | null>(null);
   const [prayers, setPrayers] = usePrayers();
   const [draft, setDraft] = useState("");
-  const [answering, setAnswering] = useShared<string | null>("fe:answering", null);
+  const [openId, setOpenId] = useShared<string | null>("fe:open", null);
   const [answer, setAnswer] = useState("");
   const { items: days } = useDocList<DayDoc>("day:");
 
@@ -59,6 +63,8 @@ export function FeSpread() {
         <figcaption className="engraved"><Figs>{verse.ref}</Figs></figcaption>
       </figure>
       <p className="caption">{pick ? "Versículo elegido al azar." : "Versículo de hoy. Mañana habrá otro."} Reina-Valera 1960.</p>
+
+      <GratitudeReading date={bookDate} />
 
       <h2 className="h-sec">Buscar por tema</h2>
       <div className={styles.chips}>
@@ -114,41 +120,76 @@ export function FeSpread() {
       </form>
 
       <ul className={styles.prayers}>
-        {pending.map((p) => (
-          <li key={p.id}>
-            <div className={styles.pRow}>
-              <span className={styles.pText}>{p.text}</span>
-              <span className="num caption">{shortDate(p.date)}</span>
-            </div>
-            {answering === p.id ? (
-              <form
-                className={styles.add}
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  setPrayers((l) => l.map((x) => (x.id === p.id ? { ...x, answered: today, answerNote: answer.trim() } : x)));
-                  setAnswering(null);
-                  setAnswer("");
-                }}
-              >
-                <input className="box-input" autoFocus value={answer} onChange={(e) => setAnswer(e.target.value)} placeholder="¿Cómo respondió Dios?" aria-label="Cómo fue respondida" />
-                <button className="ink-btn" type="submit">Guardar</button>
-              </form>
-            ) : (
-              <div className={styles.pActions}>
-                <button className="ink-btn ghost" onClick={() => setAnswering(p.id)}>
-                  <Check aria-hidden /> Respondida
-                </button>
-                <button
-                  className="icon-btn"
-                  onClick={() => confirm("¿Borrar esta petición?") && setPrayers((l) => l.filter((x) => x.id !== p.id))}
-                  aria-label="Borrar petición"
-                >
-                  <Trash2 />
-                </button>
-              </div>
-            )}
-          </li>
-        ))}
+        {pending.map((p) => {
+          const open = openId === p.id;
+          const times = p.prayed?.length ?? 0;
+          const prayedToday = p.prayed?.includes(today);
+          const patchP = (q: Partial<Prayer>) => setPrayers((l) => l.map((x) => (x.id === p.id ? { ...x, ...q } : x)));
+          return (
+            <li key={p.id} data-open={open || undefined}>
+              <button className={styles.pRow} onClick={() => setOpenId(open ? null : p.id)} aria-expanded={open}>
+                <span className={styles.pText}>{p.text}</span>
+                <span className="num caption">
+                  {times > 0 ? `${times} ${times === 1 ? "vez" : "veces"} · ` : ""}
+                  {shortDate(p.date)}
+                </span>
+              </button>
+              {!open && (
+                <div className={styles.pActions}>
+                  <button
+                    className={`ink-btn ${prayedToday ? "" : "ghost"}`}
+                    onClick={() => {
+                      if (prayedToday) return;
+                      play("check");
+                      patchP({ prayed: [...(p.prayed ?? []), today] });
+                    }}
+                    aria-pressed={!!prayedToday}
+                  >
+                    <HandHeart aria-hidden /> {prayedToday ? "Oraste hoy" : "Oré por esto hoy"}
+                  </button>
+                  <button className="ink-btn ghost" onClick={() => setOpenId(p.id)}>
+                    <Check aria-hidden /> Respondida
+                  </button>
+                </div>
+              )}
+              {open && (
+                <div className={styles.pOpen}>
+                  <label className="field">
+                    <span>Petición</span>
+                    <textarea className="box-input" rows={2} value={p.text} onChange={(e) => patchP({ text: e.target.value })} />
+                  </label>
+                  <label className="field">
+                    <span>Notas (lo que sientes, versículos, avances)</span>
+                    <textarea className="box-input" rows={3} value={p.note ?? ""} onChange={(e) => patchP({ note: e.target.value })} />
+                  </label>
+                  <form
+                    className={styles.add}
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      patchP({ answered: today, answerNote: answer.trim() });
+                      setOpenId(null);
+                      setAnswer("");
+                      play("paper-place");
+                    }}
+                  >
+                    <input className="box-input" value={answer} onChange={(e) => setAnswer(e.target.value)} placeholder="¿Cómo respondió Dios?" aria-label="Cómo fue respondida" />
+                    <button className="ink-btn" type="submit">
+                      <Check aria-hidden /> Marcar respondida
+                    </button>
+                  </form>
+                  <div className={styles.pActions}>
+                    <button className="ink-btn ghost" onClick={() => setOpenId(null)}>
+                      Cerrar
+                    </button>
+                    <button className="icon-btn" onClick={() => confirm("¿Borrar esta petición?") && setPrayers((l) => l.filter((x) => x.id !== p.id))} aria-label="Borrar petición">
+                      <Trash2 />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </li>
+          );
+        })}
         {pending.length === 0 && <li className="caption">Sin peticiones pendientes.</li>}
       </ul>
 

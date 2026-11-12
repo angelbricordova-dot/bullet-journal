@@ -230,9 +230,14 @@ export function useDoc<T>(key: string, fallback: T): [T, (next: T | ((prev: T) =
 
   const update = useCallback(
     (next: T | ((prev: T) => T)) => {
-      const prev = (entries.get(key)?.value ?? fallback) as T;
-      const v = typeof next === "function" ? (next as (p: T) => T)(prev) : next;
-      writeDoc(key, v);
+      const apply = () => {
+        const prev = (entries.get(key)?.value ?? fallback) as T;
+        const v = typeof next === "function" ? (next as (p: T) => T)(prev) : next;
+        writeDoc(key, v);
+      };
+      // never write on top of a document we haven't read from the server yet
+      if (entries.get(key)?.loaded) apply();
+      else void load(key).then(apply);
     },
     // fallback is intentionally captured once per key
     // eslint-disable-next-line react-hooks/exhaustive-deps

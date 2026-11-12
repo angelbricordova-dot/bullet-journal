@@ -21,8 +21,54 @@
   flex-wrap: wrap;
 }
 .brainWrap {
-  width: min(100%, 330px);
-  margin: 6px auto 0;
+  width: min(100%, 400px);
+  margin: 4px auto 0;
+}
+.palette {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+.swatch {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--paper);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25);
+  transition: transform 120ms var(--ease-out);
+}
+.swatch:hover {
+  transform: scale(1.12);
+}
+.swatch[aria-checked="true"] {
+  box-shadow: 0 0 0 2px var(--ink);
+  transform: scale(1.12);
+}
+.eraseSwatch {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px dashed var(--ink-3);
+  background: transparent;
+  color: var(--ink-2);
+}
+.eraseSwatch svg {
+  width: 14px;
+  height: 14px;
+}
+.eraseSwatch[aria-checked="true"] {
+  border: 2px solid var(--ink);
+  color: var(--ink);
+}
+.paintHint {
+  text-align: center;
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+  margin-top: 4px;
 }
 .dayLine {
   display: grid;
@@ -102,9 +148,16 @@
 }
 .row {
   display: grid;
-  gap: 6px;
-  padding: 12px 0;
+  gap: 8px;
+  padding: 14px 0;
   border-bottom: 1px solid var(--paper-edge);
+}
+.why {
+  margin: -2px 0 0 34px;
+  font-family: var(--font-fell);
+  font-style: italic;
+  font-size: 0.9375rem;
+  color: var(--ink-2);
 }
 .rowHead {
   display: grid;
@@ -122,7 +175,7 @@
   color: var(--ink-2);
 }
 .count b {
-  font-size: 1.5rem;
+  font-size: 1.7rem;
   font-weight: 600;
   color: var(--ink);
 }

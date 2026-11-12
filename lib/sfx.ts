@@ -4,33 +4,64 @@ import { useSyncExternalStore } from "react";
 
 /* Paper, leather and ink sounds (generated with ElevenLabs, normalised). */
 export type Sfx =
-  | "page-turn"
-  | "page-turn-2"
+  | "page-a"
+  | "page-b"
+  | "page-c"
   | "book-open"
   | "book-close"
-  | "pen"
-  | "pencil"
-  | "marker"
+  | "pen-write"
+  | "pencil-write"
+  | "marker-write"
   | "eraser"
-  | "tape"
+  | "tape-kraft"
+  | "tape-black"
+  | "tape-red"
+  | "tape-linen"
+  | "tape-clear"
   | "check"
   | "paper-place"
-  | "photo";
+  | "photo"
+  | "type-tick"
+  | "paint"
+  | "ribbon";
 
 const VOL: Partial<Record<Sfx, number>> = {
-  "page-turn": 0.8,
-  "page-turn-2": 0.6,
-  "book-open": 0.75,
-  "book-close": 0.75,
-  pen: 0.32,
-  pencil: 0.3,
-  marker: 0.28,
-  eraser: 0.3,
-  tape: 0.6,
+  "page-a": 0.7,
+  "page-b": 0.7,
+  "page-c": 0.7,
+  "book-open": 0.7,
+  "book-close": 0.7,
+  "pen-write": 0.55,
+  "pencil-write": 0.5,
+  "marker-write": 0.45,
+  eraser: 0.4,
+  "tape-kraft": 0.7,
+  "tape-black": 0.7,
+  "tape-red": 0.7,
+  "tape-linen": 0.7,
+  "tape-clear": 0.7,
   check: 0.45,
   "paper-place": 0.6,
   photo: 0.6,
+  "type-tick": 0.5,
+  paint: 0.6,
+  ribbon: 0.65,
 };
+
+const PAGES: Sfx[] = ["page-a", "page-b", "page-c"];
+let lastPage = -1;
+/** A page turn, never the same take twice in a row. */
+export function pageTurn(volume = 1) {
+  let i = Math.floor(Math.random() * PAGES.length);
+  if (i === lastPage) i = (i + 1) % PAGES.length;
+  lastPage = i;
+  play(PAGES[i], { volume });
+}
+
+export function tapeSound(style: string) {
+  const name = (`tape-${style}` as Sfx) in VOL ? (`tape-${style}` as Sfx) : "tape-kraft";
+  play(name);
+}
 
 let ctx: AudioContext | null = null;
 const buffers = new Map<Sfx, AudioBuffer>();
@@ -120,32 +151,46 @@ export function play(name: Sfx, opts: { volume?: number; rate?: number; offset?:
   });
 }
 
-/* ---- looping sounds for drawing: start on pointer down, stop on up ---- */
+/* ---- drawing loops: silent until the pen moves, louder the faster it moves ---- */
 let loopSrc: AudioBufferSourceNode | null = null;
 let loopGain: GainNode | null = null;
+let loopName: Sfx | null = null;
+let level = 0;
 
 export function startLoop(name: Sfx) {
   if (muted) return;
   stopLoop();
   const c = audio();
   if (!c) return;
+  loopName = name;
+  level = 0;
   void load(name).then((buf) => {
-    if (!buf || muted) return;
-    stopLoop();
+    if (!buf || muted || loopName !== name) return;
     const src = c.createBufferSource();
     src.buffer = buf;
     src.loop = true;
     const g = c.createGain();
-    g.gain.setValueAtTime(0, c.currentTime);
-    g.gain.linearRampToValueAtTime(VOL[name] ?? 0.3, c.currentTime + 0.05);
+    g.gain.value = 0;
     src.connect(g).connect(c.destination);
-    src.start(0, Math.random() * Math.max(0, buf.duration - 0.6));
+    src.start(0, Math.random() * Math.max(0, buf.duration - 0.8));
     loopSrc = src;
     loopGain = g;
+    setLoopLevel(level);
   });
 }
 
+/** 0 = pen resting on the page (silent), 1 = a quick confident stroke. */
+export function setLoopLevel(v: number) {
+  level = Math.max(0, Math.min(1, v));
+  if (!loopGain || !ctx || !loopName) return;
+  const target = level * (VOL[loopName] ?? 0.4);
+  loopGain.gain.cancelScheduledValues(ctx.currentTime);
+  loopGain.gain.setTargetAtTime(target, ctx.currentTime, level > loopGain.gain.value ? 0.025 : 0.06);
+  if (loopSrc) loopSrc.playbackRate.setTargetAtTime(0.9 + level * 0.2, ctx.currentTime, 0.05);
+}
+
 export function stopLoop() {
+  loopName = null;
   if (!loopSrc || !ctx || !loopGain) return;
   const s = loopSrc;
   loopGain.gain.cancelScheduledValues(ctx.currentTime);
@@ -154,7 +199,7 @@ export function stopLoop() {
     try {
       s.stop();
     } catch {}
-  }, 160);
+  }, 200);
   loopSrc = null;
   loopGain = null;
 }
@@ -163,7 +208,7 @@ export function stopLoop() {
 let lastType = 0;
 export function typeTick() {
   const now = performance.now();
-  if (now - lastType < 90) return;
+  if (now - lastType < 45) return;
   lastType = now;
-  play("pencil", { volume: 0.4, rate: 1.3 + Math.random() * 0.3, offset: Math.random() * 1.8, duration: 0.09 });
+  play("type-tick", { volume: 0.55 + Math.random() * 0.25, rate: 0.9 + Math.random() * 0.25 });
 }

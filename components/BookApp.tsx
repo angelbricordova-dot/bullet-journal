@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BookCopy, ChevronLeft, ChevronRight, Download, LifeBuoy, PanelLeftClose, PanelLeftOpen, RotateCcw, Volume2, VolumeX } from "lucide-react";
+import { BookCopy, BookmarkPlus, BookmarkX, ChevronLeft, ChevronRight, Download, LifeBuoy, PanelLeftClose, PanelLeftOpen, RotateCcw, Volume2, VolumeX } from "lucide-react";
 import { Book3D, DEFAULT_VIEW, useView } from "./book/Book3D";
 import { FlatBook } from "./book/FlatBook";
 import { ToolPanel } from "./book/Tools";
 import { SPREAD_LIST } from "./book/spreads";
+import { useRibbonControl } from "./book/ribbon";
 import { SosSheet } from "./SosSheet";
 import { useHydrated } from "@/lib/useHydrated";
 import { useSettings } from "@/lib/hooks";
@@ -67,6 +68,15 @@ export function SoundToggle({ className }: { className?: string }) {
   );
 }
 
+function RibbonButton({ cur }: { cur: number }) {
+  const { here, toggle } = useRibbonControl(cur);
+  return (
+    <button onClick={toggle} title={here ? "Quitar el marcapáginas de esta hoja" : "Poner el marcapáginas en esta hoja"}>
+      {here ? <BookmarkX aria-hidden /> : <BookmarkPlus aria-hidden />} {here ? "Quitar marca" : "Marcar hoja"}
+    </button>
+  );
+}
+
 export function BookApp() {
   const hydrated = useHydrated();
   const { w, h } = useWindowSize();
@@ -78,7 +88,8 @@ export function BookApp() {
     const d = document.documentElement;
     d.dataset.cover = settings.cover;
     d.dataset.paper = settings.paper;
-  }, [settings.cover, settings.paper]);
+    d.dataset.font = settings.font ?? "clasico";
+  }, [settings.cover, settings.paper, settings.font]);
 
   // sounds: warm up on first touch; soft pen while typing on a page
   useEffect(() => {
@@ -164,16 +175,19 @@ function Desk({ onSos, pw, ph, side }: { onSos: () => void; pw: number; ph: numb
           <ChevronRight aria-hidden />
         </button>
         <button
+          aria-pressed={toolsOpen}
+          title={toolsOpen ? "Ocultar herramientas" : "Mostrar herramientas"}
           onClick={() => {
             if (toolsOpen) setTool("none");
             setToolsOpen(!toolsOpen);
           }}
         >
-          {toolsOpen ? <PanelLeftClose aria-hidden /> : <PanelLeftOpen aria-hidden />} {toolsOpen ? "Ocultar herramientas" : "Herramientas"}
+          {toolsOpen ? <PanelLeftClose aria-hidden /> : <PanelLeftOpen aria-hidden />} Herramientas
         </button>
         <button onClick={() => setView(DEFAULT_VIEW)} title="Arrastra el escritorio para girar el cuaderno; la rueda acerca y aleja">
           <RotateCcw aria-hidden /> Vista
         </button>
+        {!closed && <RibbonButton cur={cur} />}
         <SoundToggle />
         <a href="/api/backup" download>
           <Download aria-hidden /> Copia

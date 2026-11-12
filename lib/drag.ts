@@ -45,3 +45,8 @@ export function drag(
   window.addEventListener("blur", blur);
   return () => finish(null);
 }
+
+/** Milliseconds clock for gesture timing. */
+export function now(): number {
+  return performance.now();
+}

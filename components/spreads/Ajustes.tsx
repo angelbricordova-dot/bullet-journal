@@ -6,7 +6,7 @@ import { Pages } from "@/components/Pages";
 import { useSettings } from "@/lib/hooks";
 import { flushAll } from "@/lib/client-store";
 import { uid } from "@/lib/date";
-import type { CoverColor, Habit, PaperStyle, Settings } from "@/lib/types";
+import type { CoverColor, FontSet, Habit, PaperStyle, Settings } from "@/lib/types";
 import styles from "./ajustes.module.css";
 
 const COVERS: { id: CoverColor; label: string }[] = [
@@ -15,6 +15,14 @@ const COVERS: { id: CoverColor; label: string }[] = [
   { id: "black", label: "Negro" },
   { id: "green", label: "Verde inglés" },
 ];
+const FONTS: { id: FontSet; label: string; head: string }[] = [
+  { id: "clasico", label: "Clásico grabado", head: "Bitácora" },
+  { id: "romano", label: "Romano", head: "Bitácora" },
+  { id: "maquina", label: "Máquina de escribir", head: "Bitácora" },
+  { id: "manuscrito", label: "Manuscrito", head: "Bitácora" },
+  { id: "moderno", label: "Moderno", head: "Bitácora" },
+];
+
 const PAPERS: { id: PaperStyle; label: string }[] = [
   { id: "ruled", label: "Rayado" },
   { id: "dots", label: "Punteado" },
@@ -73,6 +81,17 @@ export function AjustesSpread() {
           <button key={p.id} role="radio" aria-checked={s.paper === p.id} className={styles.paper} data-paper-sample={p.id} onClick={() => set({ paper: p.id })}>
             <i aria-hidden />
             <span>{p.label}</span>
+          </button>
+        ))}
+      </div>
+
+      <h2 className="h-sec">Letra</h2>
+      <div className={styles.fonts} role="radiogroup" aria-label="Tipografía del cuaderno">
+        {FONTS.map((f) => (
+          <button key={f.id} role="radio" aria-checked={(s.font ?? "clasico") === f.id} className={styles.font} data-font={f.id} onClick={() => set({ font: f.id })}>
+            <span className={styles.fontHead}>{f.head}</span>
+            <span className={styles.fontBody}>Hoy doy gracias por…</span>
+            <span className={styles.fontName}>{f.label}</span>
           </button>
         ))}
       </div>

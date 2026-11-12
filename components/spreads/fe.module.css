@@ -64,10 +64,26 @@
   gap: 8px;
 }
 .pRow {
+  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: baseline;
   gap: 12px;
+  padding: 4px 6px;
+  margin: 0 -6px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+.pRow:hover {
+  background: rgba(28, 35, 51, 0.05);
+}
+.pOpen {
+  display: grid;
+  gap: 10px;
+  padding: 6px 0 4px;
 }
 .pText {
   font-size: 1rem;

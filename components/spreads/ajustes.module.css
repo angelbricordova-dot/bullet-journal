@@ -212,3 +212,50 @@
 .yearly input {
   accent-color: var(--ink);
 }
+
+.fonts {
+  display: grid;
+  gap: 6px;
+}
+.font {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas: "head name" "body name";
+  align-items: baseline;
+  gap: 0 12px;
+  padding: 8px 12px;
+  border: 1px solid var(--paper-edge);
+  border-radius: 8px;
+  background: transparent;
+  text-align: left;
+  color: var(--ink);
+}
+.font[aria-checked="true"] {
+  border-color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--ink);
+}
+.fontHead {
+  grid-area: head;
+  font-size: 1.35rem;
+  line-height: 1.1;
+}
+.fontBody {
+  grid-area: body;
+  font-size: 0.9375rem;
+  color: var(--ink-2);
+}
+.fontName {
+  grid-area: name;
+  font-size: 0.75rem;
+  color: var(--ink-3);
+}
+.font[data-font="clasico"] .fontHead { font-family: var(--font-fell-sc); }
+.font[data-font="clasico"] .fontBody { font-family: var(--font-archivo); }
+.font[data-font="romano"] .fontHead { font-family: var(--font-cinzel); }
+.font[data-font="romano"] .fontBody { font-family: var(--font-spectral); }
+.font[data-font="maquina"] .fontHead { font-family: var(--font-elite); }
+.font[data-font="maquina"] .fontBody { font-family: var(--font-courier); }
+.font[data-font="manuscrito"] .fontHead { font-family: var(--font-kalam); font-weight: 700; }
+.font[data-font="manuscrito"] .fontBody { font-family: var(--font-kalam); }
+.font[data-font="moderno"] .fontHead { font-family: var(--font-oswald); text-transform: uppercase; letter-spacing: 0.04em; }
+.font[data-font="moderno"] .fontBody { font-family: var(--font-archivo); }

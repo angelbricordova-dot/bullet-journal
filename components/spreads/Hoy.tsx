@@ -16,7 +16,6 @@ import { setBookDate, useBookDate } from "@/lib/book";
 import { monthInfo } from "@/lib/month";
 import styles from "./hoy.module.css";
 
-const MOODS = ["Muy mal", "Mal", "Normal", "Bien", "Muy bien"];
 
 export function HoySpread() {
   const today = todayYmd();
@@ -142,15 +141,6 @@ export function HoySpread() {
       </div>
       <RapidLog items={day.log} onChange={(log) => patch({ log })} onMigrate={migrate} />
 
-      <h2 className="h-sec">Lo que pasó hoy</h2>
-      <textarea
-        className={`ruled ${styles.notes}`}
-        value={day.note}
-        onChange={(e) => patch({ note: e.target.value })}
-        placeholder="Escribe sin filtro. Nadie más lo lee."
-        rows={6}
-        aria-label="Notas del día"
-      />
     </div>
   );
 
@@ -191,62 +181,14 @@ export function HoySpread() {
         ))}
       </ul>
 
-      <h2 className="h-sec">Sueño</h2>
-      <div className={styles.sleep}>
-        <label className="field">
-          <span>Me dormí</span>
-          <input className="box-input num" type="time" value={day.sleep ?? ""} onChange={(e) => patch({ sleep: e.target.value })} />
-        </label>
-        <label className="field">
-          <span>Me levanté</span>
-          <input className="box-input num" type="time" value={day.wake ?? ""} onChange={(e) => patch({ wake: e.target.value })} />
-        </label>
-      </div>
-
-      <h2 className="h-sec">Ánimo</h2>
-      <div className={styles.moods} role="radiogroup" aria-label="Ánimo del día">
-        {MOODS.map((m, i) => (
-          <button
-            key={m}
-            role="radio"
-            aria-checked={day.mood === i + 1}
-            className={styles.mood}
-            data-fill={day.mood !== undefined && i + 1 <= day.mood ? "" : undefined}
-            onClick={() => patch({ mood: day.mood === i + 1 ? undefined : i + 1 })}
-          >
-            <i aria-hidden />
-            <span>{m}</span>
-          </button>
-        ))}
-      </div>
-
-      <h2 className="h-sec">Gratitud</h2>
-      <ol className={`ruled ${styles.gratitude}`}>
-        {[0, 1, 2].map((i) => (
-          <li key={i}>
-            <input
-              className="ink-input"
-              value={day.gratitude[i] ?? ""}
-              onChange={(e) => {
-                const g = [...day.gratitude];
-                g[i] = e.target.value;
-                patch({ gratitude: g });
-              }}
-              placeholder={i === 0 ? "Hoy doy gracias por…" : ""}
-              aria-label={`Gratitud ${i + 1}`}
-            />
-          </li>
-        ))}
-      </ol>
-
-      <h2 className="h-sec">Lectura bíblica</h2>
-      <input
-        className="ink-input ruled"
-        style={{ height: "var(--line)" }}
-        value={day.reading ?? ""}
-        onChange={(e) => patch({ reading: e.target.value })}
-        placeholder="Ej. Proverbios 4"
-        aria-label="Lectura bíblica de hoy"
+      <h2 className="h-sec">Lo que pasó hoy</h2>
+      <textarea
+        className={`ruled ${styles.notes}`}
+        value={day.note}
+        onChange={(e) => patch({ note: e.target.value })}
+        placeholder="Escribe sin filtro. Nadie más lo lee."
+        rows={8}
+        aria-label="Notas del día"
       />
     </div>
   );
