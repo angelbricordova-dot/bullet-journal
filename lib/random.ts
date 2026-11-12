@@ -6,3 +6,8 @@ export function pickRandom<T>(list: readonly T[], avoid?: (x: T) => boolean): T 
   }
   return list[Math.floor(Math.random() * list.length)];
 }
+
+/** Small random tilt in degrees, ±range/2. */
+export function tilt(range: number): number {
+  return Math.round((Math.random() - 0.5) * range);
+}

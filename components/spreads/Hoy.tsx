@@ -13,6 +13,7 @@ import { verseForDay } from "@/lib/verses";
 import { addDays, daysBetween, longDate, nextOccurrence, parseYmd, todayYmd, uid, weekday } from "@/lib/date";
 import type { Bullet, DayDoc } from "@/lib/types";
 import { setBookDate, useBookDate } from "@/lib/book";
+import { monthInfo } from "@/lib/month";
 import styles from "./hoy.module.css";
 
 const MOODS = ["Muy mal", "Mal", "Normal", "Bien", "Muy bien"];
@@ -30,6 +31,15 @@ export function HoySpread() {
   const doneCount = habits.filter((h) => day.habits[h.id]).length;
   const dayN = daysBetween(settings.startDate, date) + 1;
   const verse = verseForDay(date);
+  const mi = monthInfo(date.slice(0, 7));
+  const monthLeft = mi.days - parseYmd(date).getDate();
+  const yesterday = history[`day:${addDays(date, -1)}`];
+  const carry = (yesterday?.log ?? []).filter(
+    (b) => b.kind === "task" && b.state === "open" && !day.log.some((x) => x.text === b.text),
+  );
+  function bringYesterday() {
+    patch({ log: [...day.log, ...carry.map((b) => ({ ...b, id: uid(), state: "open" as const }))] });
+  }
   const d = parseYmd(date);
 
   const upcoming = useMemo(
@@ -72,6 +82,11 @@ export function HoySpread() {
                 <span>Día <b className="num">{dayN}</b> del cambio</span>
               </>
             )}
+          </p>
+          <p className={styles.meta}>
+            <span>
+              Quedan <b className="num">{monthLeft}</b> días de {monthInfo(date.slice(0, 7)).name}
+            </span>
           </p>
         </div>
         <nav className={styles.dayNav} aria-label="Cambiar de día">
@@ -118,7 +133,12 @@ export function HoySpread() {
       </figure>
 
       <div className={styles.secHead}>
-        <h2 className="h-sec">Registro rápido</h2>
+        <h2 className="h-sec">Pendientes</h2>
+        {carry.length > 0 && (
+          <button className="chip" onClick={bringYesterday}>
+            Traer {carry.length} de ayer
+          </button>
+        )}
       </div>
       <RapidLog items={day.log} onChange={(log) => patch({ log })} onMigrate={migrate} />
 

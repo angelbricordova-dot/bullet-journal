@@ -241,3 +241,20 @@
   box-shadow: inset 6px 0 10px -4px rgba(0, 0, 0, 0.55), 0 30px 60px -10px rgba(0, 0, 0, 0.8);
   transform: rotateY(-8deg) rotateX(6deg);
 }
+
+.soundRow {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 10px;
+  background: #f6f0e1;
+  font-family: var(--font-engraved);
+  font-size: 1.1rem;
+}
+.soundRow svg {
+  width: 22px;
+  height: 22px;
+}

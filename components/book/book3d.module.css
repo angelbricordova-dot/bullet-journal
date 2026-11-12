@@ -326,19 +326,26 @@
   opacity: 1;
 }
 
+/* silk ribbon: lies across the page it marks (Hoy); elsewhere only its tail shows */
 .ribbon {
   position: absolute;
-  top: -10px;
-  left: calc(var(--pw) + 34px);
+  top: calc(var(--ph) - 18px);
+  left: calc(var(--pw) * 1.62);
   width: 14px;
-  height: calc(var(--ph) + 48px);
-  transform: translateZ(9px);
+  height: 62px;
+  transform: translateZ(-1px);
   pointer-events: none;
   background:
     linear-gradient(to right, rgba(0, 0, 0, 0.25), transparent 30%, rgba(255, 255, 255, 0.14) 50%, transparent 70%, rgba(0, 0, 0, 0.25)),
     var(--ribbon);
   clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 8px), 0 100%);
   opacity: 0.95;
+}
+.ribbon[data-full] {
+  top: -10px;
+  left: calc(var(--pw) + 34px);
+  height: calc(var(--ph) + 48px);
+  transform: translateZ(9px);
 }
 .book[data-closed] .ribbon {
   left: calc(var(--pw) * 1.72);
@@ -366,5 +373,17 @@
 .face:not([inert]),
 .tab,
 .coverOut:not([inert]) {
+  pointer-events: auto;
+}
+
+/* the un-rotated wrappers must never catch clicks meant for a tilted page */
+.pos,
+.book,
+.backCover,
+.spine,
+.leftStack {
+  pointer-events: none;
+}
+.grab {
   pointer-events: auto;
 }

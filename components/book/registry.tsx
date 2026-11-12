@@ -6,6 +6,7 @@ import { HoySpread } from "../spreads/Hoy";
 import { MesSpread } from "../spreads/Mes";
 import { TrackersSpread } from "../spreads/Trackers";
 import { RetosSpread } from "../spreads/Retos";
+import { VidaSpread } from "../spreads/Vida";
 import { FeSpread } from "../spreads/Fe";
 import { LibrosSpread } from "../spreads/Libros";
 import { ResumenSpread } from "../spreads/Resumen";
@@ -17,6 +18,7 @@ export const SPREAD_COMPONENTS: ComponentType[] = [
   MesSpread,
   TrackersSpread,
   RetosSpread,
+  VidaSpread,
   FeSpread,
   LibrosSpread,
   ResumenSpread,

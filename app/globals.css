@@ -242,49 +242,12 @@ button:disabled {
   gap: 10px;
   align-items: center;
 }
-.now-plate {
-  display: grid;
-  grid-template-columns: auto auto;
-  align-items: baseline;
-  gap: 0 14px;
-  padding: 8px 16px 8px;
-  border-radius: 4px;
-  background: linear-gradient(180deg, var(--brass-hi), var(--brass) 55%, var(--brass-lo));
-  color: #33230d;
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset, 0 -1px 0 rgba(0, 0, 0, 0.35) inset, 0 6px 14px rgba(0, 0, 0, 0.5);
-}
-.now-month {
-  font-size: 1.05rem;
-  letter-spacing: 0.08em;
-  text-transform: capitalize;
-}
-.now-left {
-  font-family: var(--font-engraved);
-  font-size: 0.9rem;
-  grid-row: span 2;
-  text-align: right;
-}
-.now-left b {
-  font-family: var(--font-ui);
-  font-size: 1.9rem;
-  font-weight: 300;
-  letter-spacing: -0.03em;
-  vertical-align: -0.1em;
-}
-.now-year {
-  font-size: 0.72rem;
-  opacity: 0.8;
-}
 .desk-tools {
   position: absolute;
-  top: 80px;
-  bottom: 76px;
+  top: 50%;
   left: 18px;
-  width: 222px;
-  overflow-y: auto;
+  transform: translateY(-50%);
   z-index: 15;
-  padding: 2px 4px 10px 2px;
-  scrollbar-width: none;
 }
 .desk-stage {
   position: absolute;
@@ -617,3 +580,9 @@ textarea.box-input {
   min-width: 0;
 }
 
+
+@keyframes cell-in {
+  from {
+    fill-opacity: 0;
+  }
+}

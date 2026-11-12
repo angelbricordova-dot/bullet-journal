@@ -50,7 +50,7 @@ export function PortadaSpread() {
 
       {dayN > 0 && (
         <p className={styles.change}>
-          <span className="stamp">
+          <span className={styles.changeLine}>
             Día <span className="fig">{dayN}</span> del cambio
           </span>
         </p>

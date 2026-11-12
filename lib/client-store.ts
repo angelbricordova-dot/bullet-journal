@@ -135,7 +135,65 @@ if (typeof window !== "undefined") {
   });
 }
 
+/* ---------- undo / redo (Ctrl+Z, Ctrl+Shift+Z / Ctrl+Y) ---------- */
+type Step = { key: string; before: unknown; after: unknown; t: number };
+const undoStack: Step[] = [];
+const redoStack: Step[] = [];
+let replaying = false;
+const histSubs = new Set<() => void>();
+const histNotify = () => histSubs.forEach((f) => f());
+
+function record(key: string, before: unknown, after: unknown) {
+  if (replaying) return;
+  const now = Date.now();
+  const top = undoStack[undoStack.length - 1];
+  // typing in the same field within a moment is one step
+  if (top && top.key === key && now - top.t < 800) {
+    top.after = after;
+    top.t = now;
+  } else {
+    undoStack.push({ key, before: before === undefined ? null : before, after, t: now });
+    if (undoStack.length > 300) undoStack.shift();
+  }
+  redoStack.length = 0;
+  histNotify();
+}
+
+export function undo(): boolean {
+  const s = undoStack.pop();
+  if (!s) return false;
+  replaying = true;
+  writeDoc(s.key, s.before);
+  replaying = false;
+  redoStack.push(s);
+  histNotify();
+  return true;
+}
+
+export function redo(): boolean {
+  const s = redoStack.pop();
+  if (!s) return false;
+  replaying = true;
+  writeDoc(s.key, s.after);
+  replaying = false;
+  undoStack.push(s);
+  histNotify();
+  return true;
+}
+
+export function useHistory() {
+  return useSyncExternalStore(
+    (cb) => {
+      histSubs.add(cb);
+      return () => histSubs.delete(cb);
+    },
+    () => `${undoStack.length}:${redoStack.length}`,
+    () => "0:0",
+  );
+}
+
 export function writeDoc<T>(key: string, value: T) {
+  record(key, entries.get(key)?.value, value);
   entries.set(key, { value, loaded: true, dirty: true });
   lsSet(key, value);
   emit(key);

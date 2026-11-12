@@ -1,19 +1,19 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { LifeBuoy, MoreHorizontal, PenLine, Stamp, X } from "lucide-react";
+import { LifeBuoy, MoreHorizontal, PenLine, X } from "lucide-react";
 import { FaceCtx } from "../Pages";
-import { Figs } from "../Figs";
 import { SPREAD_LIST } from "./spreads";
 import { SPREAD_COMPONENTS } from "./registry";
 import { CoverFront } from "./Cover";
 import { ToolPanel } from "./Tools";
 import { goSpread, useSpread, useTool } from "@/lib/book";
-import { nowInfo } from "@/lib/month";
+import { play } from "@/lib/sfx";
+import { SoundToggle } from "../BookApp";
 import styles from "./flat.module.css";
 
 const MAIN = [1, 2, 3, 4, 5];
-const MORE = [0, 6, 7, 8];
+const MORE = [0, 6, 7, 8, 9];
 
 /** Phone: one page at a time, same notebook. */
 export function FlatBook({ onSos }: { onSos: () => void }) {
@@ -21,10 +21,16 @@ export function FlatBook({ onSos }: { onSos: () => void }) {
   const [tool, setTool] = useTool();
   const [sheet, setSheet] = useState<null | "tools" | "more">(null);
   const scroller = useRef<HTMLDivElement>(null);
-  const n = nowInfo();
+  const prevCur = useRef(cur);
 
   useEffect(() => {
     scroller.current?.scrollTo({ top: 0 });
+    if (prevCur.current !== cur) {
+      if (prevCur.current < 0) play("book-open");
+      else if (cur < 0) play("book-close");
+      else play(Math.random() < 0.5 ? "page-turn" : "page-turn-2", { volume: 0.8 });
+      prevCur.current = cur;
+    }
   }, [cur]);
 
   if (cur < 0) {
@@ -44,12 +50,7 @@ export function FlatBook({ onSos }: { onSos: () => void }) {
     <div className={styles.flat}>
       <header className={styles.head}>
         <div className={styles.now}>
-          <span className="engraved">
-            {n.month} <Figs>{String(n.year)}</Figs>
-          </span>
-          <span className={styles.left}>
-            <b className="num">{n.monthLeft}</b> días quedan
-          </span>
+          <span className="engraved">Bitácora</span>
         </div>
         <button className="brass-btn" onClick={onSos}>
           <LifeBuoy aria-hidden /> Momento difícil
@@ -76,9 +77,8 @@ export function FlatBook({ onSos }: { onSos: () => void }) {
       </div>
 
       <div className={styles.fabs}>
-        <button className={styles.fab} onClick={() => setSheet("tools")} aria-label="Pluma, pegatinas y cinta">
+        <button className={styles.fab} onClick={() => setSheet("tools")} aria-label="Herramientas: pluma, texto, cinta y foto">
           <PenLine aria-hidden />
-          <Stamp aria-hidden />
         </button>
       </div>
 
@@ -106,7 +106,7 @@ export function FlatBook({ onSos }: { onSos: () => void }) {
               <X />
             </button>
             {sheet === "tools" ? (
-              <ToolPanel onDone={() => setSheet(null)} />
+              <ToolPanel compact onDone={() => setSheet(null)} />
             ) : (
               <ul className={styles.more}>
                 {MORE.map((i) => {
@@ -129,6 +129,9 @@ export function FlatBook({ onSos }: { onSos: () => void }) {
                     </li>
                   );
                 })}
+                <li>
+                  <SoundToggle className={styles.soundRow} />
+                </li>
                 <li>
                   <button
                     onClick={() => {

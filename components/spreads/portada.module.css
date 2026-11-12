@@ -75,8 +75,15 @@
 .change {
   margin: 22px 0 6px;
 }
-.change :global(.stamp) {
-  font-size: 1.05rem;
+.changeLine {
+  display: inline-block;
+  padding: 6px 0;
+  border-top: 1.5px solid var(--vermilion);
+  border-bottom: 1.5px solid var(--vermilion);
+  font-family: var(--font-engraved);
+  font-size: 1.15rem;
+  letter-spacing: 0.06em;
+  color: var(--vermilion);
 }
 .verse {
   margin-top: 18px;

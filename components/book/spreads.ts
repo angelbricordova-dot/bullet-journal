@@ -1,4 +1,4 @@
-import { BookBookmark, BookOpen, CalendarDays, ChartLine, Cross, Flame, ListOrdered, NotebookPen, Settings2 } from "lucide-react";
+import { BookBookmark, BookOpen, Brain, CalendarDays, ChartLine, Cross, Hourglass, ListOrdered, NotebookPen, Settings2 } from "lucide-react";
 
 /** Order of the spreads in the book. Index = spread number; each tab sits on its leaf. */
 export const SPREAD_LIST = [
@@ -6,10 +6,11 @@ export const SPREAD_LIST = [
   { key: "hoy", label: "Hoy", hint: "Registro del día, hábitos, sueño, gratitud", icon: BookOpen },
   { key: "mes", label: "Mes", hint: "Bienvenida del mes, metas y calendario", icon: CalendarDays },
   { key: "trackers", label: "Trackers", hint: "Hábitos con puntos, sueño y ánimo", icon: ChartLine },
-  { key: "retos", label: "Retos", hint: "Rachas, caídas y victorias", icon: Flame },
+  { key: "retos", label: "Retos", hint: "El cerebro de pureza y tus rachas", icon: Brain },
+  { key: "vida", label: "Vida", hint: "Tu vida en semanas: cada día cuenta", icon: Hourglass },
   { key: "fe", label: "Fe", hint: "Versículos y diario de oración", icon: Cross },
   { key: "libros", label: "Libros", hint: "Lecturas y hoja libre", icon: BookBookmark },
-  { key: "resumen", label: "Resumen", hint: "El mes en números y tus datos de Real", icon: NotebookPen },
+  { key: "resumen", label: "Resumen", hint: "El mes en números y lo que aprendiste", icon: NotebookPen },
   { key: "ajustes", label: "Ajustes", hint: "Portada, papel, hábitos y copia", icon: Settings2 },
 ] as const;
 

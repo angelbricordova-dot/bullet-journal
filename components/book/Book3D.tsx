@@ -7,6 +7,9 @@ import { SPREAD_COMPONENTS } from "./registry";
 import { CoverFront } from "./Cover";
 import { goSpread, useSpread, useTool } from "@/lib/book";
 import { useShared } from "@/lib/shared";
+import { drag as dragPointer } from "@/lib/drag";
+import { play } from "@/lib/sfx";
+import { Curl } from "./curl";
 import styles from "./book3d.module.css";
 
 const M = 14; // cover overhang
@@ -76,17 +79,63 @@ export function Book3D({ pw, ph, offsetX = 0 }: { pw: number; ph: number; offset
   const [from, setFrom] = useState(cur);
   const sceneRef = useRef<HTMLDivElement>(null);
   const spineRef = useRef<HTMLDivElement>(null);
+  const bookRef = useRef<HTMLDivElement>(null);
+  const curlRef = useRef<{ curl: Curl; leaf: HTMLElement } | null>(null);
+  const skipCurl = useRef<number | null>(null);
+  const [instantLeaf, setInstantLeaf] = useState<number | null>(null);
   const closed = cur < 0;
+
+  const leafEl = (j: number) => bookRef.current?.querySelector<HTMLElement>(`[data-leaf="${j}"]`) ?? null;
+  const endCurl = () => {
+    const c = curlRef.current;
+    if (!c) return;
+    c.curl.destroy();
+    c.leaf.style.visibility = "";
+    curlRef.current = null;
+  };
+  const makeCurl = (j: number): Curl | null => {
+    const el = leafEl(j);
+    if (!el || !bookRef.current) return null;
+    endCurl();
+    const curl = new Curl(bookRef.current, el, pw, ph, (LEAVES + 6) * STEP);
+    el.style.visibility = "hidden";
+    curlRef.current = { curl, leaf: el };
+    return curl;
+  };
 
   // remember where we came from for staggered turns and to keep its pages drawn while they move
   useLayoutEffect(() => {
-    if (prev.current !== cur) {
-      setFrom(prev.current);
-      prev.current = cur;
-      const t = setTimeout(() => setFrom(cur), 1400);
-      return () => clearTimeout(t);
+    if (prev.current === cur) return;
+    const was = prev.current;
+    setFrom(was);
+    prev.current = cur;
+
+    // sounds and the paper curl
+    if (was < 0 && cur >= 0) play("book-open");
+    else if (cur < 0) play("book-close");
+    const step = cur - was;
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (skipCurl.current === cur) {
+      skipCurl.current = null;
+    } else if (Math.abs(step) === 1 && Math.min(cur, was) >= 0 && !reduce) {
+      const j = Math.min(cur, was);
+      const curl = makeCurl(j);
+      if (curl) {
+        const dir = step > 0 ? 1 : -1;
+        curl.set(step > 0 ? 0 : 1, dir);
+        play(Math.random() < 0.5 ? "page-turn" : "page-turn-2");
+        void curl.animate(step > 0 ? 1 : 0, dir).then(endCurl);
+      }
+    } else if (Math.abs(step) > 1 && Math.min(cur, was) >= 0) {
+      const n = Math.min(4, Math.abs(step));
+      for (let i = 0; i < n; i++) setTimeout(() => play("page-turn-2", { volume: 0.7 }), i * 90);
     }
+    const t = setTimeout(() => setFrom(cur), 1400);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cur]);
+
+  useEffect(() => () => endCurl(), []);
 
   // pen work wants a flat, frontal page
   useEffect(() => {
@@ -125,27 +174,25 @@ export function Book3D({ pw, ph, offsetX = 0 }: { pw: number; ph: number; offset
 
   /* ---- rotate the whole book by dragging the desk ---- */
   function onSceneDown(e: React.PointerEvent) {
+    if (e.button !== 0) return;
     if (e.target !== e.currentTarget && !(e.target as HTMLElement).dataset.desk) return;
-    const sx = e.clientX;
-    const sy = e.clientY;
     const v0 = view;
-    const move = (ev: PointerEvent) => {
-      setView({
-        ...v0,
-        ry: Math.max(-55, Math.min(55, v0.ry + (ev.clientX - sx) * 0.22)),
-        rx: Math.max(-5, Math.min(60, v0.rx - (ev.clientY - sy) * 0.22)),
-      });
-    };
-    const up = () => {
-      window.removeEventListener("pointermove", move);
-      window.removeEventListener("pointerup", up);
-    };
-    window.addEventListener("pointermove", move);
-    window.addEventListener("pointerup", up);
+    dragPointer(
+      e,
+      (_ev, dx, dy) =>
+        setView({
+          ...v0,
+          ry: Math.max(-55, Math.min(55, v0.ry + dx * 0.22)),
+          rx: Math.max(-5, Math.min(60, v0.rx - dy * 0.22)),
+        }),
+      undefined,
+      5,
+    );
   }
 
-  /* ---- drag a page corner to turn it ---- */
+  /* ---- drag a page edge to turn it: the paper bends under your hand ---- */
   function onGrab(e: React.PointerEvent, dir: "fwd" | "back") {
+    if (e.button !== 0) return;
     e.preventDefault();
     e.stopPropagation();
     const leaf = dir === "fwd" ? cur : cur - 1;
@@ -153,26 +200,52 @@ export function Book3D({ pw, ph, offsetX = 0 }: { pw: number; ph: number; offset
     const spine = spineRef.current!.getBoundingClientRect();
     const sx = spine.left + spine.width / 2;
     const pwScreen = pw * view.zoom * Math.cos((view.ry * Math.PI) / 180);
-    let angle = dir === "fwd" ? 0 : -180;
+    const sign = dir === "fwd" ? 1 : -1;
+    let p = dir === "fwd" ? 0 : 1;
     let lastX = e.clientX;
     let vel = 0;
-    const move = (ev: PointerEvent) => {
-      const c = Math.max(-1, Math.min(1, (ev.clientX - sx) / pwScreen));
-      angle = (-Math.acos(c) * 180) / Math.PI;
-      vel = ev.clientX - lastX;
-      lastX = ev.clientX;
-      setDrag({ leaf, angle });
-    };
-    const up = () => {
-      window.removeEventListener("pointermove", move);
-      window.removeEventListener("pointerup", up);
-      const turn = dir === "fwd" ? angle < -90 || vel < -8 : !(angle > -90 || vel > 8);
-      setDrag(null);
-      if (dir === "fwd" && turn) goSpread(cur + 1);
-      if (dir === "back" && !turn) goSpread(cur - 1);
-    };
-    window.addEventListener("pointermove", move);
-    window.addEventListener("pointerup", up);
+    const curl = leaf >= 0 ? makeCurl(leaf) : null;
+    curl?.set(p, sign);
+    let soundPlayed = false;
+
+    dragPointer(
+      e,
+      (ev) => {
+        const c = Math.max(-1, Math.min(1, (ev.clientX - sx) / pwScreen));
+        p = Math.acos(c) / Math.PI;
+        vel = ev.clientX - lastX;
+        lastX = ev.clientX;
+        if (!soundPlayed) {
+          play("page-turn", { volume: 0.8 });
+          soundPlayed = true;
+        }
+        if (curl) curl.set(p, sign);
+        else setDrag({ leaf, angle: -180 * p });
+      },
+      () => {
+        const complete = dir === "fwd" ? p > 0.5 || vel < -8 : p < 0.5 || vel > 8;
+        const target = dir === "fwd" ? cur + 1 : cur - 1;
+        if (!curl) {
+          setDrag(null);
+          if (complete) goSpread(target);
+          return;
+        }
+        const to = (dir === "fwd") === complete ? 1 : 0;
+        void curl.animate(to, sign, 600).then(() => {
+          if (complete) {
+            skipCurl.current = target;
+            setInstantLeaf(leaf);
+            goSpread(target);
+            requestAnimationFrame(() =>
+              requestAnimationFrame(() => {
+                setInstantLeaf(null);
+                endCurl();
+              }),
+            );
+          } else endCurl();
+        });
+      },
+    );
   }
 
   const leafStyle = (j: number): CSSProperties => {
@@ -184,7 +257,7 @@ export function Book3D({ pw, ph, offsetX = 0 }: { pw: number; ph: number; offset
     const delay = drag ? 0 : Math.max(0, cur > from ? j - lo : Math.max(cur, from) - 1 - j) * 70;
     return {
       transform: `rotateY(${angle}deg) translateZ(${z}px)`,
-      transition: drag?.leaf === j ? "none" : `transform 850ms var(--ease-page) ${delay}ms`,
+      transition: drag?.leaf === j || instantLeaf === j ? "none" : `transform 850ms var(--ease-page) ${delay}ms`,
       zIndex: drag?.leaf === j ? 50 : undefined,
     };
   };
@@ -208,7 +281,7 @@ export function Book3D({ pw, ph, offsetX = 0 }: { pw: number; ph: number; offset
   return (
     <div ref={sceneRef} className={styles.scene} onPointerDown={onSceneDown} data-desk="1">
       <div className={styles.pos} style={{ transform: `translateX(${offsetX + (closed ? -pw / 2 : 0)}px)` }} data-desk="1">
-      <div className={styles.book} style={bookStyle} data-closed={closed || undefined}>
+      <div ref={bookRef} className={styles.book} style={bookStyle} data-closed={closed || undefined} data-spread={cur}>
         <div className={styles.backCover} />
         <div className={styles.spine} ref={spineRef} />
 
@@ -220,7 +293,7 @@ export function Book3D({ pw, ph, offsetX = 0 }: { pw: number; ph: number; offset
         {leftCount > 0 && <div className={styles.leftStack} style={{ boxShadow: stackShadow(leftCount, true) }} />}
 
         {Array.from({ length: LEAVES }, (_, j) => (
-          <div key={j} className={styles.leaf} style={leafStyle(j)} data-turned={j < cur || undefined}>
+          <div key={j} className={styles.leaf} style={leafStyle(j)} data-leaf={j} data-turned={j < cur || undefined}>
             <Face spread={j} side="right" active={cur === j && !drag} render={visible(j)} />
             <Face spread={j + 1} side="left" active={cur === j + 1 && !drag} render={visible(j + 1)} />
             <Tab index={j} />
@@ -248,7 +321,7 @@ export function Book3D({ pw, ph, offsetX = 0 }: { pw: number; ph: number; offset
 
         {!closed && cur < LEAVES && <div className={`${styles.grab} ${styles.grabR}`} onPointerDown={(e) => onGrab(e, "fwd")} title="Arrastra para pasar la hoja" />}
         {!closed && cur >= 0 && <div className={`${styles.grab} ${styles.grabL}`} onPointerDown={(e) => onGrab(e, "back")} title="Arrastra para volver" />}
-        <div className={styles.ribbon} aria-hidden />
+        <div className={styles.ribbon} data-full={cur === 1 || undefined} aria-hidden />
       </div>
       </div>
     </div>

@@ -57,6 +57,8 @@ export interface Settings {
   reasons: string[];
   dates: ImportantDate[];
   payday?: string; // YYYY-MM-DD
+  birthDate?: string; // YYYY-MM-DD
+  lifeYears?: number;
 }
 
 export interface Fall {

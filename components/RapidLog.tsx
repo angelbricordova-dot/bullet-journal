@@ -1,39 +1,23 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Trash2 } from "lucide-react";
+import { CornerDownRight, Plus, Trash2 } from "lucide-react";
 import type { Bullet, BulletKind, BulletState } from "@/lib/types";
 import { uid } from "@/lib/date";
+import { play } from "@/lib/sfx";
 import styles from "./rapidlog.module.css";
-
-const KIND_LABEL: Record<BulletKind, string> = { task: "Tarea", event: "Evento", note: "Nota" };
-const STATE_LABEL: Record<BulletState, string> = {
-  open: "pendiente",
-  done: "hecha",
-  migrated: "pasada a mañana",
-  cancelled: "descartada",
-};
-
-const CYCLE: Record<BulletKind, BulletState[]> = {
-  task: ["open", "done", "migrated", "cancelled"],
-  event: ["open", "done", "cancelled"],
-  note: ["open"],
-};
 
 export function Glyph({ kind, state }: { kind: BulletKind; state: BulletState }) {
   const common = { fill: "none", stroke: "currentColor", strokeWidth: 2.2, strokeLinecap: "round" as const };
   return (
     <svg viewBox="0 0 20 20" width="20" height="20" aria-hidden>
-      {kind === "task" && state === "open" && <circle cx="10" cy="10" r="3.2" fill="currentColor" />}
-      {kind === "task" && state === "cancelled" && <circle cx="10" cy="10" r="3.2" fill="currentColor" opacity=".45" />}
-      {kind === "task" && state === "done" && <path d="M5.5 5.5 L14.5 14.5 M14.5 5.5 L5.5 14.5" {...common} />}
-      {kind === "task" && state === "migrated" && <path d="M7 4.5 L13 10 L7 15.5" {...common} />}
       {kind === "event" && <circle cx="10" cy="10" r="4.6" {...common} strokeWidth={1.8} fill={state === "done" ? "currentColor" : "none"} />}
       {kind === "note" && <path d="M5 10 H15" {...common} />}
     </svg>
   );
 }
 
+/** Today's to-do list: tick it, push it to tomorrow, or drop it. */
 export function RapidLog({
   items,
   onChange,
@@ -43,26 +27,21 @@ export function RapidLog({
   onChange: (next: Bullet[]) => void;
   onMigrate: (b: Bullet) => void;
 }) {
-  const [kind, setKind] = useState<BulletKind>("task");
   const [draft, setDraft] = useState("");
   const refs = useRef<Record<string, HTMLInputElement | null>>({});
   const newRef = useRef<HTMLInputElement>(null);
+
+  const open = items.filter((b) => b.kind === "task" && b.state === "open").length;
+  const done = items.filter((b) => b.kind === "task" && b.state === "done").length;
 
   function update(id: string, patch: Partial<Bullet>) {
     onChange(items.map((b) => (b.id === id ? { ...b, ...patch } : b)));
   }
 
-  function cycle(b: Bullet) {
-    const states = CYCLE[b.kind];
-    const next = states[(states.indexOf(b.state) + 1) % states.length];
-    update(b.id, { state: next });
-    if (next === "migrated") onMigrate(b);
-  }
-
   function add() {
     const text = draft.trim();
     if (!text) return;
-    onChange([...items, { id: uid(), kind, text, state: "open" }]);
+    onChange([...items, { id: uid(), kind: "task", text, state: "open" }]);
     setDraft("");
   }
 
@@ -77,55 +56,91 @@ export function RapidLog({
 
   return (
     <div className={styles.log}>
+      {(open > 0 || done > 0) && (
+        <p className={styles.count}>
+          <b className="num">{done}</b> de <span className="num">{open + done}</span> hechas
+        </p>
+      )}
       <ul className={`ruled ${styles.list}`}>
-        {items.map((b) => (
-          <li key={b.id} className={styles.item} data-state={b.state} data-kind={b.kind}>
-            <button
-              className={styles.glyph}
-              onClick={() => cycle(b)}
-              disabled={b.kind === "note"}
-              aria-label={`${KIND_LABEL[b.kind]} ${STATE_LABEL[b.state]}. Cambiar estado`}
-            >
-              <Glyph kind={b.kind} state={b.state} />
-            </button>
-            <input
-              ref={(el) => {
-                refs.current[b.id] = el;
-              }}
-              className={styles.text}
-              value={b.text}
-              onChange={(e) => update(b.id, { text: e.target.value })}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  newRef.current?.focus();
-                }
-                if (e.key === "Backspace" && b.text === "") {
-                  e.preventDefault();
-                  remove(b.id, true);
-                }
-              }}
-              aria-label={`${KIND_LABEL[b.kind]}`}
-            />
-            <button className={styles.del} onClick={() => remove(b.id)} aria-label="Borrar línea">
-              <Trash2 />
-            </button>
-          </li>
-        ))}
+        {items.map((b) => {
+          const task = b.kind === "task";
+          return (
+            <li key={b.id} className={styles.item} data-state={b.state} data-kind={b.kind}>
+              {task ? (
+                <button
+                  role="checkbox"
+                  aria-checked={b.state === "done"}
+                  className={styles.box}
+                  disabled={b.state === "migrated"}
+                  onClick={() => {
+                    const next = b.state === "done" ? "open" : "done";
+                    if (next === "done") play("check");
+                    update(b.id, { state: next });
+                  }}
+                  aria-label={b.state === "done" ? `Desmarcar: ${b.text}` : `Marcar hecho: ${b.text}`}
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden>
+                    <path d="M5 12.5 L10 17.5 L19.5 6.5" />
+                  </svg>
+                </button>
+              ) : (
+                <span className={styles.glyph}>
+                  <Glyph kind={b.kind} state={b.state} />
+                </span>
+              )}
+              <input
+                ref={(el) => {
+                  refs.current[b.id] = el;
+                }}
+                className={styles.text}
+                value={b.text}
+                onChange={(e) => update(b.id, { text: e.target.value })}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    newRef.current?.focus();
+                  }
+                  if (e.key === "Backspace" && b.text === "") {
+                    e.preventDefault();
+                    remove(b.id, true);
+                  }
+                }}
+                aria-label="Pendiente"
+              />
+              {b.state === "migrated" ? (
+                <span className={styles.moved}>en mañana</span>
+              ) : (
+                task &&
+                b.state === "open" && (
+                  <button
+                    className={styles.act}
+                    onClick={() => {
+                      update(b.id, { state: "migrated" });
+                      onMigrate(b);
+                      play("page-turn-2", { volume: 0.4, duration: 0.3 });
+                    }}
+                    title="Pasar a mañana"
+                    aria-label={`Pasar a mañana: ${b.text}`}
+                  >
+                    <CornerDownRight />
+                  </button>
+                )
+              )}
+              <button className={styles.act} onClick={() => remove(b.id)} aria-label={`Borrar: ${b.text}`} title="Borrar">
+                <Trash2 />
+              </button>
+            </li>
+          );
+        })}
 
         <li className={`${styles.item} ${styles.new}`}>
-          <button
-            className={styles.glyph}
-            onClick={() => setKind((k) => (k === "task" ? "event" : k === "event" ? "note" : "task"))}
-            aria-label={`Tipo: ${KIND_LABEL[kind]}. Cambiar tipo`}
-            title="Cambiar tipo: tarea, evento o nota"
-          >
-            <Glyph kind={kind} state="open" />
-          </button>
+          <span className={styles.plus} aria-hidden>
+            <Plus />
+          </span>
           <input
             ref={newRef}
             className={styles.text}
-            placeholder={kind === "task" ? "Nueva tarea…" : kind === "event" ? "Nuevo evento…" : "Nueva nota…"}
+            placeholder="Agregar pendiente…"
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={(e) => {
@@ -136,18 +151,10 @@ export function RapidLog({
             }}
             onBlur={add}
             enterKeyHint="enter"
-            aria-label="Nueva línea"
+            aria-label="Nuevo pendiente"
           />
         </li>
       </ul>
-
-      <p className={styles.key}>
-        <span><Glyph kind="task" state="open" /> tarea</span>
-        <span><Glyph kind="event" state="open" /> evento</span>
-        <span><Glyph kind="note" state="open" /> nota</span>
-        <span><Glyph kind="task" state="done" /> hecha</span>
-        <span><Glyph kind="task" state="migrated" /> a mañana</span>
-      </p>
     </div>
   );
 }

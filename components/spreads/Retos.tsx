@@ -6,6 +6,7 @@ import { Pages } from "@/components/Pages";
 import { Tally } from "@/components/Tally";
 import { HabitCheck } from "@/components/HabitCheck";
 import { Figs } from "@/components/Figs";
+import { Brain } from "@/components/Brain";
 import { useChallenges, useDay, useSettings } from "@/lib/hooks";
 import { useDocList } from "@/lib/client-store";
 import { challengeBest, challengeDays, abstainNow } from "@/lib/streaks";
@@ -13,6 +14,7 @@ import { VERSES } from "@/lib/verses";
 import { shortDate, todayYmd, uid, ymd } from "@/lib/date";
 import type { Challenge, DayDoc } from "@/lib/types";
 import { useShared } from "@/lib/shared";
+import { play } from "@/lib/sfx";
 import styles from "./retos.module.css";
 
 const TRIGGERS = ["Celular en la cama", "Aburrimiento", "Soledad", "Desvelo", "Ansiedad o estrés", "Redes sociales", "Cansancio"];
@@ -27,10 +29,13 @@ export function RetosSpread() {
   const [todayDoc, setTodayDoc] = useDay(today);
   const [, tick] = useState(0);
   const active = challenges.filter((c) => !c.archived);
-  const [selId, setSelId] = useShared<string | null>("retos:sel", null);
-  const sel = active.find((c) => c.id === selId) ?? active[0];
+  const abstains = active.filter((c) => c.kind === "abstain");
+  const habits = active.filter((c) => c.kind === "habit");
+  const [mainId, setMainId] = useShared<string | null>("retos:main", null);
+  const main = abstains.find((c) => c.id === mainId) ?? abstains[0];
+  const [falling, setFalling] = useShared("retos:falling", false);
+  const [justFell, setJustFell] = useShared("retos:fell", false);
 
-  // live clock for the abstinence counters
   useEffect(() => {
     const t = setInterval(() => {
       tick((n) => n + 1);
@@ -39,41 +44,68 @@ export function RetosSpread() {
     return () => clearInterval(t);
   }, []);
 
-  // merge today's live doc into the history used for streaks
   const history = { ...days, [`day:${today}`]: todayDoc };
 
   function patch(id: string, p: Partial<Challenge>) {
     setChallenges((list) => list.map((c) => (c.id === id ? { ...c, ...p } : c)));
   }
 
-  const left = (
+  /* ---------------- left: the brain ---------------- */
+  const left = main ? (
+    <BrainPage
+      key={main.id}
+      c={main}
+      others={abstains}
+      onPick={setMainId}
+      falling={falling}
+      setFalling={setFalling}
+      justFell={justFell}
+      setJustFell={setJustFell}
+      onPatch={(p) => patch(main.id, p)}
+    />
+  ) : (
     <div>
       <h1 className="h-page">Retos</h1>
-      <p className={styles.lede}>Cada marca es un día ganado. Si caes, lo escribes, te levantas y la cuenta vuelve a empezar.</p>
+      <p className="caption">Crea un reto de “dejar algo” en la página de la derecha y aquí aparecerá su cerebro.</p>
+    </div>
+  );
 
+  /* ---------------- right: habit streaks, history, new ---------------- */
+  const timeline = main
+    ? [
+        ...main.falls.map((f) => ({ kind: "fall" as const, date: f.date, note: f.note })),
+        ...main.wins.map((w) => ({ kind: "win" as const, date: w, note: "" })),
+      ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    : [];
+
+  const right = (
+    <div>
+      <h2 className="h-page">Disciplina</h2>
+      <p className={styles.lede}>Rachas de lo que estás construyendo. Cada marca es un día cumplido.</p>
       <ul className={styles.list}>
-        {active.map((c) => {
+        {habits.map((c) => {
           const n = challengeDays(c, history);
-          const hours = c.kind === "abstain" ? abstainNow(c).hours : null;
+          const doneToday = c.habitId ? !!todayDoc.habits[c.habitId] : false;
           return (
-            <li key={c.id}>
-              <button className={styles.entry} aria-pressed={sel?.id === c.id} onClick={() => setSelId(c.id)}>
-                <span className={styles.entryHead}>
-                  <span className={styles.name}>{c.name}</span>
-                  <span className={styles.count}>
-                    <b className="num">{n}</b> {n === 1 ? "día" : "días"}
-                    {hours !== null && <span className="num"> {hours} h</span>}
-                  </span>
+            <li key={c.id} className={styles.row}>
+              <div className={styles.rowHead}>
+                <HabitCheck
+                  checked={doneToday}
+                  label={`${c.name}: hecho hoy`}
+                  onToggle={() => c.habitId && setTodayDoc((d) => ({ ...d, habits: { ...d.habits, [c.habitId!]: !d.habits[c.habitId!] } }))}
+                />
+                <span className={styles.name}>{c.name}</span>
+                <span className={styles.count}>
+                  <b className="num">{n}</b> / <span className="num">{c.target}</span>
                 </span>
-                <Tally value={n} target={c.target} label={c.name} />
-                <span className={styles.meta}>
-                  Meta: <span className="num">{c.target}</span> días
-                  {c.kind === "abstain" && c.wins.length > 0 && (
-                    <> · <span className="num">{c.wins.length}</span> {c.wins.length === 1 ? "tentación vencida" : "tentaciones vencidas"}</>
-                  )}
-                  {n >= c.target && <span className="stamp" style={{ marginLeft: 10, fontSize: "0.75rem" }}>Cumplido</span>}
-                </span>
-              </button>
+              </div>
+              <Tally value={n} target={c.target} label={c.name} />
+              <div className={styles.rowFoot}>
+                <span className="caption">Mejor racha: <span className="num">{challengeBest(c, history)}</span></span>
+                <button className={styles.linkBtn} onClick={() => confirm(`¿Archivar “${c.name}”?`) && patch(c.id, { archived: true })}>
+                  <Archive aria-hidden /> Archivar
+                </button>
+              </div>
             </li>
           );
         })}
@@ -83,52 +115,57 @@ export function RetosSpread() {
         habits={settings.habits.filter((h) => h.active)}
         onAdd={(c) => {
           setChallenges((l) => [...l, c]);
-          setSelId(c.id);
+          if (c.kind === "abstain") setMainId(c.id);
         }}
       />
-    </div>
-  );
 
-  const right = sel ? (
-    <ChallengeDetail
-      key={sel.id}
-      c={sel}
-      days={history}
-      todayDone={sel.habitId ? !!todayDoc.habits[sel.habitId] : false}
-      onToggleToday={() =>
-        sel.habitId && setTodayDoc((d) => ({ ...d, habits: { ...d.habits, [sel.habitId!]: !d.habits[sel.habitId!] } }))
-      }
-      onPatch={(p) => patch(sel.id, p)}
-    />
-  ) : (
-    <p className="caption">Crea tu primer reto en la página de la izquierda.</p>
+      {timeline.length > 0 && main && (
+        <>
+          <h3 className="h-sec">Historial de {main.name.toLowerCase()}</h3>
+          <ol className={styles.timeline}>
+            {timeline.slice(0, 30).map((t, i) => (
+              <li key={i} data-kind={t.kind}>
+                <span className={`num ${styles.tDate}`}>{shortDate(ymd(new Date(t.date)))}</span>
+                <span>
+                  <b>{t.kind === "fall" ? "Caída" : "Tentación vencida"}</b>
+                  {t.note && <span className={styles.tNote}>{t.note}</span>}
+                </span>
+              </li>
+            ))}
+          </ol>
+        </>
+      )}
+    </div>
   );
 
   return <Pages id="retos" left={left} right={right} />;
 }
 
-function ChallengeDetail({
+function BrainPage({
   c,
-  days,
-  todayDone,
-  onToggleToday,
+  others,
+  onPick,
+  falling,
+  setFalling,
+  justFell,
+  setJustFell,
   onPatch,
 }: {
   c: Challenge;
-  days: Record<string, DayDoc | undefined>;
-  todayDone: boolean;
-  onToggleToday: () => void;
+  others: Challenge[];
+  onPick: (id: string) => void;
+  falling: boolean;
+  setFalling: (v: boolean) => void;
+  justFell: boolean;
+  setJustFell: (v: boolean) => void;
   onPatch: (p: Partial<Challenge>) => void;
 }) {
-  const [falling, setFalling] = useState(false);
   const [what, setWhat] = useState("");
   const [triggers, setTriggers] = useState<string[]>([]);
   const [plan, setPlan] = useState("");
-  const [justFell, setJustFell] = useState(false);
   const [won, setWon] = useState(false);
-
-  const best = challengeBest(c, days);
-  const now = challengeDays(c, days);
+  const { days, hours } = abstainNow(c);
+  const best = challengeBest(c, {});
 
   function fall() {
     const parts = [
@@ -146,64 +183,50 @@ function ChallengeDetail({
 
   function win() {
     onPatch({ wins: [...c.wins, new Date().toISOString()] });
+    play("check");
     setWon(true);
     setTimeout(() => setWon(false), 1400);
   }
 
-  const timeline = [
-    ...c.falls.map((f) => ({ kind: "fall" as const, date: f.date, note: f.note })),
-    ...c.wins.map((w) => ({ kind: "win" as const, date: w, note: "" })),
-  ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-
   return (
-    <div>
-      <h2 className={styles.detailTitle}>{c.name}</h2>
-      <p className="quote" style={{ fontSize: "1.05rem" }}>{c.why}</p>
-
-      <dl className={styles.stats}>
-        <div>
-          <dt>Racha actual</dt>
-          <dd className="num">{now}</dd>
-        </div>
-        <div>
-          <dt>Mejor racha</dt>
-          <dd className="num">{best}</dd>
-        </div>
-        {c.kind === "abstain" ? (
-          <>
-            <div>
-              <dt>Victorias</dt>
-              <dd className="num">{c.wins.length}</dd>
-            </div>
-            <div>
-              <dt>Caídas</dt>
-              <dd className="num">{c.falls.length}</dd>
-            </div>
-          </>
-        ) : (
-          <div>
-            <dt>Meta</dt>
-            <dd className="num">{c.target}</dd>
+    <div className={styles.brainPage}>
+      <div className={styles.brainHead}>
+        <h1 className="h-page">{c.name}</h1>
+        {others.length > 1 && (
+          <div className={styles.picker}>
+            {others.map((o) => (
+              <button key={o.id} className="chip" aria-pressed={o.id === c.id} onClick={() => onPick(o.id)}>
+                {o.name}
+              </button>
+            ))}
           </div>
         )}
-      </dl>
+      </div>
+      <p className="quote" style={{ fontSize: "1rem" }}>{c.why}</p>
 
-      {c.kind === "habit" ? (
-        <div className={styles.todayRow}>
-          <HabitCheck checked={todayDone} onToggle={onToggleToday} label="Hecho hoy" />
-          <span>{todayDone ? "Hecho hoy. Mañana, otra marca." : "Márcalo cuando lo cumplas hoy."}</span>
-        </div>
-      ) : (
-        <div className={styles.actions}>
-          <button className="ink-btn" onClick={win}>
-            <Check aria-hidden /> Vencí una tentación
-          </button>
-          <button className="ink-btn ghost" onClick={() => setFalling((f) => !f)} aria-expanded={falling}>
-            <RotateCcw aria-hidden /> Caí
-          </button>
-          {won && <span className="stamp" aria-live="polite">Victoria</span>}
-        </div>
-      )}
+      <div className={styles.brainWrap}>
+        <Brain filled={days} total={c.target} label={`${c.name}, cerebro de ${c.target} días`} />
+      </div>
+
+      <div className={styles.dayLine}>
+        <span className={styles.days}>
+          <b className="num">{days}</b> {days === 1 ? "día" : "días"} <span className="num">{hours} h</span>
+        </span>
+        <span className="caption">
+          <span className="num">{Math.min(days, c.target)}</span> de <span className="num">{c.target}</span> celdas · mejor racha <span className="num">{best}</span> · <span className="num">{c.wins.length}</span> victorias
+        </span>
+      </div>
+      <p className="caption" style={{ marginTop: 4 }}>Cada día limpio pinta una celda. Tu mente se va llenando de color otra vez.</p>
+
+      <div className={styles.actions}>
+        <button className="ink-btn" onClick={win}>
+          <Check aria-hidden /> Vencí una tentación
+        </button>
+        <button className="ink-btn ghost" onClick={() => setFalling(!falling)} aria-expanded={falling}>
+          <RotateCcw aria-hidden /> Caí
+        </button>
+        {won && <span className={styles.won} aria-live="polite">Victoria</span>}
+      </div>
 
       {justFell && !falling && (
         <div className={styles.rise} role="status">
@@ -211,7 +234,8 @@ function ChallengeDetail({
           <p className="engraved"><Figs>{RISE.ref}</Figs></p>
           <p className="quote" style={{ marginTop: 10 }}>{CLEAN.text}</p>
           <p className="engraved"><Figs>{CLEAN.ref}</Figs></p>
-          <p className={styles.riseNote}>La cuenta empieza otra vez desde ahora. Levántate.</p>
+          <p className={styles.riseNote}>El cerebro empieza otra vez desde hoy. Levántate.</p>
+          <button className={styles.linkBtn} onClick={() => setJustFell(false)}>Entendido</button>
         </div>
       )}
 
@@ -223,7 +247,7 @@ function ChallengeDetail({
             fall();
           }}
         >
-          <p className={styles.formLede}>Escríbelo con honestidad. No para castigarte, sino para entender qué lo provocó.</p>
+          <p className={styles.formLede}>Escríbelo con honestidad. No para castigarte: para entender qué lo provocó.</p>
           <label className="field">
             <span>¿Qué pasó?</span>
             <textarea className="box-input" rows={2} value={what} onChange={(e) => setWhat(e.target.value)} />
@@ -232,13 +256,7 @@ function ChallengeDetail({
             <span>¿Qué lo provocó?</span>
             <div className={styles.chips}>
               {TRIGGERS.map((t) => (
-                <button
-                  type="button"
-                  key={t}
-                  className="chip"
-                  aria-pressed={triggers.includes(t)}
-                  onClick={() => setTriggers((s) => (s.includes(t) ? s.filter((x) => x !== t) : [...s, t]))}
-                >
+                <button type="button" key={t} className="chip" aria-pressed={triggers.includes(t)} onClick={() => setTriggers((s) => (s.includes(t) ? s.filter((x) => x !== t) : [...s, t]))}>
                   {t}
                 </button>
               ))}
@@ -255,38 +273,11 @@ function ChallengeDetail({
         </form>
       )}
 
-      {timeline.length > 0 && (
-        <>
-          <h3 className="h-sec">Historial</h3>
-          <ol className={styles.timeline}>
-            {timeline.slice(0, 40).map((t, i) => (
-              <li key={i} data-kind={t.kind}>
-                <span className={`num ${styles.tDate}`}>{shortDate(ymd(new Date(t.date)))}</span>
-                <span>
-                  <b>{t.kind === "fall" ? "Caída" : "Tentación vencida"}</b>
-                  {t.note && <span className={styles.tNote}>{t.note}</span>}
-                </span>
-              </li>
-            ))}
-          </ol>
-        </>
-      )}
-
-      <div className={styles.footer}>
-        <label className="field" style={{ maxWidth: 140 }}>
+      <div className={styles.target}>
+        <label className="field" style={{ maxWidth: 130 }}>
           <span>Meta (días)</span>
-          <input
-            className="box-input num"
-            type="number"
-            min={1}
-            max={1000}
-            value={c.target}
-            onChange={(e) => onPatch({ target: Math.max(1, Number(e.target.value) || 1) })}
-          />
+          <input className="box-input num" type="number" min={10} max={365} value={c.target} onChange={(e) => onPatch({ target: Math.max(10, Math.min(365, Number(e.target.value) || 90)) })} />
         </label>
-        <button className="ink-btn ghost" onClick={() => confirm(`¿Archivar “${c.name}”? Podrás seguir viendo su historial en la copia de seguridad.`) && onPatch({ archived: true })}>
-          <Archive aria-hidden /> Archivar
-        </button>
       </div>
     </div>
   );
@@ -296,13 +287,13 @@ function NewChallenge({ habits, onAdd }: { habits: { id: string; name: string }[
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [why, setWhy] = useState("");
-  const [kind, setKind] = useState<"abstain" | "habit">("abstain");
+  const [kind, setKind] = useState<"abstain" | "habit">("habit");
   const [habitId, setHabitId] = useState(habits[0]?.id ?? "");
-  const [target, setTarget] = useState(40);
+  const [target, setTarget] = useState(30);
 
   if (!open) {
     return (
-      <button className="ink-btn ghost" style={{ marginTop: 20 }} onClick={() => setOpen(true)}>
+      <button className="ink-btn ghost" style={{ marginTop: 14 }} onClick={() => setOpen(true)}>
         <Plus aria-hidden /> Nuevo reto
       </button>
     );
@@ -331,24 +322,24 @@ function NewChallenge({ habits, onAdd }: { habits: { id: string; name: string }[
       }}
     >
       <h3 className="h-sec">Nuevo reto</h3>
+      <fieldset className="field">
+        <span>Tipo</span>
+        <div className={styles.chips}>
+          <button type="button" className="chip" aria-pressed={kind === "habit"} onClick={() => setKind("habit")}>Cumplir un hábito</button>
+          <button type="button" className="chip" aria-pressed={kind === "abstain"} onClick={() => setKind("abstain")}>Dejar algo (cerebro)</button>
+        </div>
+      </fieldset>
       <label className="field">
         <span>Nombre</span>
-        <input className="box-input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ej. Sin redes después de las 10 pm" autoFocus />
+        <input className="box-input" value={name} onChange={(e) => setName(e.target.value)} placeholder={kind === "habit" ? "Ej. Leer 20 minutos" : "Ej. Sin redes de noche"} autoFocus />
       </label>
       <label className="field">
         <span>¿Por qué?</span>
         <input className="box-input" value={why} onChange={(e) => setWhy(e.target.value)} />
       </label>
-      <fieldset className="field">
-        <span>Tipo</span>
-        <div className={styles.chips}>
-          <button type="button" className="chip" aria-pressed={kind === "abstain"} onClick={() => setKind("abstain")}>Dejar algo</button>
-          <button type="button" className="chip" aria-pressed={kind === "habit"} onClick={() => setKind("habit")}>Cumplir un hábito</button>
-        </div>
-      </fieldset>
       {kind === "habit" && (
         <label className="field">
-          <span>Hábito</span>
+          <span>Hábito que lo cuenta</span>
           <select className="box-input" value={habitId} onChange={(e) => setHabitId(e.target.value)}>
             {habits.map((h) => (
               <option key={h.id} value={h.id}>{h.name}</option>

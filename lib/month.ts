@@ -4,6 +4,9 @@ export interface MonthDoc {
   goals: { id: string; text: string; done: boolean }[];
   notes: Record<string, string>; // "1".."31" → short note on the calendar
   summary: string;
+  learned?: string;
+  thanks?: string;
+  next?: string;
 }
 
 export const emptyMonth = (): MonthDoc => ({ goals: [], notes: {}, summary: "" });

@@ -1,0 +1,145 @@
+.lede {
+  margin: 8px 0 12px;
+  font-size: 0.875rem;
+  color: var(--ink-2);
+  max-width: 52ch;
+}
+.grid {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.dot {
+  fill: transparent;
+  stroke: color-mix(in oklab, var(--ink) 40%, transparent);
+  stroke-width: 0.7;
+}
+.dot[data-s="past"] {
+  fill: var(--ink);
+  stroke: var(--ink);
+}
+.dot[data-s="now"] {
+  fill: var(--vermilion);
+  stroke: var(--vermilion);
+  animation: now-pulse 2.4s ease-in-out infinite;
+}
+@keyframes now-pulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+.ask {
+  display: grid;
+  gap: 10px;
+  padding: 16px 0;
+}
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin-top: 12px;
+  border-top: 1.5px solid var(--ink);
+  border-bottom: 1px solid var(--paper-edge);
+}
+.stats > div {
+  padding: 8px 0 10px;
+}
+.stats > div + div {
+  padding-left: 10px;
+  border-left: 1px solid var(--paper-edge);
+}
+.stats dt {
+  font-size: 0.75rem;
+  color: var(--ink-3);
+}
+.stats dd {
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.bar {
+  position: relative;
+  height: 14px;
+  margin: 12px 0 6px;
+  border: 1.5px solid var(--ink);
+  border-radius: 2px;
+  padding: 2px;
+}
+.bar i {
+  display: block;
+  height: 100%;
+  background: var(--ink);
+}
+.bar span {
+  position: absolute;
+  right: 4px;
+  top: -20px;
+  font-size: 0.75rem;
+  color: var(--ink-2);
+}
+.week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.day {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+}
+.dName {
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-3);
+}
+.dBox {
+  position: relative;
+  width: 100%;
+  height: 46px;
+  border: 1.5px solid var(--ink);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.dBox i {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--ink);
+  transition: height 400ms var(--ease-out);
+}
+.day[data-s="now"] .dBox {
+  border-color: var(--vermilion);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--vermilion) 25%, transparent);
+}
+.day[data-s="now"] .dName {
+  color: var(--vermilion);
+  font-weight: 600;
+}
+.day[data-s="future"] .dBox {
+  border-style: dashed;
+  border-color: color-mix(in oklab, var(--ink) 35%, transparent);
+}
+.verse {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--paper-edge);
+}
+.verse blockquote {
+  font-size: 1rem;
+  line-height: 1.4;
+}
+.verse figcaption {
+  margin-top: 4px;
+  color: var(--vermilion);
+  font-size: 0.875rem;
+}
+.settings {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--paper-edge);
+}
