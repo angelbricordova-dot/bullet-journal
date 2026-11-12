@@ -29,13 +29,13 @@ export function FlatBook({ onSos }: { onSos: () => void }) {
     scroller.current?.scrollTo({ top: 0 });
     if (prevCur.current !== cur) {
       if (prevCur.current < 0) play("book-open");
-      else if (cur < 0) play("book-close");
+      else if (cur < 0 || cur >= SPREAD_LIST.length) play("book-close");
       else pageTurn(0.8);
       prevCur.current = cur;
     }
   }, [cur]);
 
-  if (cur < 0) {
+  if (cur < 0 || cur >= SPREAD_LIST.length) {
     return (
       <div className={styles.closed} onClick={() => goSpread(1)}>
         <div className={styles.closedCover}>

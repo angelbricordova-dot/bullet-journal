@@ -620,3 +620,50 @@ textarea.box-input {
 [data-hints="off"] .hint {
   display: none !important;
 }
+
+/* "Limpiar": only the book on the desk */
+.desk3d[data-clean] .desk-top,
+.desk3d[data-clean] .desk-tools,
+.desk3d[data-clean] .desk-bar {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px);
+}
+.desk-top,
+.desk-tools,
+.desk-bar {
+  transition: opacity 300ms var(--ease-out), transform 300ms var(--ease-out);
+}
+.desk-tools {
+  transform: translateY(-50%);
+}
+.desk3d[data-clean] .desk-tools {
+  transform: translate(-12px, -50%);
+}
+.desk3d[data-clean] .desk-bar {
+  transform: translate(-50%, 12px);
+}
+.unclean {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  z-index: 30;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: color-mix(in oklab, var(--leather-lo) 70%, #120c08);
+  color: var(--leather-ink);
+  opacity: 0.25;
+  transition: opacity 200ms;
+}
+.unclean:hover,
+.unclean:focus-visible {
+  opacity: 1;
+}
+.unclean svg {
+  width: 18px;
+  height: 18px;
+}

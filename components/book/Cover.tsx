@@ -43,3 +43,18 @@ export function CoverFront({ active = true }: { active?: boolean }) {
     </div>
   );
 }
+
+/** Outside of the back cover. */
+export function BackCover() {
+  return (
+    <div className={styles.back}>
+      <div className={styles.tooling} aria-hidden />
+      <svg className={styles.backCross} viewBox="0 0 40 60" aria-hidden>
+        <path d="M20 4 V56 M8 18 H32" />
+      </svg>
+      <p className={styles.backVerse}>Siete veces cae el justo, y vuelve a levantarse.</p>
+      <p className={styles.backRef}>Proverbios 24:16</p>
+      <p className={`hint ${styles.hint}`}>Toca para abrir</p>
+    </div>
+  );
+}

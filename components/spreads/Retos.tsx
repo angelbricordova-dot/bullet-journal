@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Archive, Eraser, Plus, RotateCcw } from "lucide-react";
+import { Archive, Eraser, LifeBuoy, Plus, RotateCcw } from "lucide-react";
 import { Pages } from "@/components/Pages";
 import { Segments } from "@/components/Segments";
 import { HabitCheck } from "@/components/HabitCheck";
@@ -13,7 +13,7 @@ import { challengeBest, challengeDays, abstainNow } from "@/lib/streaks";
 import { VERSES } from "@/lib/verses";
 import { shortDate, todayYmd, uid, ymd } from "@/lib/date";
 import type { Challenge, DayDoc } from "@/lib/types";
-import { useShared } from "@/lib/shared";
+import { setShared, useShared } from "@/lib/shared";
 import { play } from "@/lib/sfx";
 import styles from "./retos.module.css";
 
@@ -244,6 +244,11 @@ function BrainPage({
         </label>
         <button className="ink-btn ghost" onClick={() => setFalling(!falling)} aria-expanded={falling}>
           <RotateCcw aria-hidden /> Caí
+        </button>
+      </div>
+      <div className={styles.actions}>
+        <button className="brass-btn" onClick={() => setShared("sos:open", true)}>
+          <LifeBuoy aria-hidden /> Momento difícil
         </button>
       </div>
 

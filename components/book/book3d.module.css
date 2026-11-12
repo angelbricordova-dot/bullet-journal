@@ -33,9 +33,50 @@
 }
 
 /* leather */
-.backCover,
+.backIn,
+.backOut,
 .coverOut,
 .coverIn,
+.spine {
+  background:
+    radial-gradient(140% 90% at 30% 10%, var(--leather-hi), transparent 60%),
+    linear-gradient(160deg, var(--leather) 0%, var(--leather-lo) 100%);
+}
+/* back cover: hinged at the spine like the front one; shuts over the pages at the end */
+.backLeaf {
+  position: absolute;
+  left: calc(var(--pw) - 10px);
+  top: calc(-1 * var(--m));
+  width: calc(var(--pw) + var(--m) + 10px);
+  height: calc(var(--ph) + 2 * var(--m));
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  transition: transform 1000ms var(--ease-page);
+  pointer-events: none;
+}
+.backIn,
+.backOut {
+  position: absolute;
+  inset: 0;
+  border-radius: 3px 10px 10px 3px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.backIn {
+  box-shadow:
+    0 2px 0 rgba(255, 255, 255, 0.05) inset,
+    0 40px 70px -14px rgba(0, 0, 0, 0.8),
+    0 14px 24px -8px rgba(0, 0, 0, 0.6);
+}
+.backOut {
+  transform: rotateY(180deg) translateZ(1px);
+  border-radius: 10px 3px 3px 10px;
+  box-shadow: inset -6px 0 10px -4px rgba(0, 0, 0, 0.55), 0 30px 60px -10px rgba(0, 0, 0, 0.7);
+}
+.backOut:not([inert]) {
+  pointer-events: auto;
+  cursor: pointer;
+}
 .spine {
   background:
     radial-gradient(140% 90% at 30% 10%, var(--leather-hi), transparent 60%),
@@ -74,10 +115,12 @@
   background: var(--paper-2);
 }
 .base {
-  left: var(--pw);
+  left: 10px;
+  top: var(--m);
   border-radius: 0 4px 4px 0;
-  transform-style: preserve-3d;
-  transform: translateZ(0);
+  transform: translateZ(1px);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 .leftStack {
   left: 0;
@@ -449,4 +492,9 @@
   letter-spacing: 0.3em;
   color: color-mix(in oklab, var(--brass-hi) 80%, transparent);
   text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.5);
+}
+
+/* when shut from the back, the drag handle sits on the back cover's free edge */
+.grabL[data-back-shut] {
+  left: calc(-1 * var(--m));
 }

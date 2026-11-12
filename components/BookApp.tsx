@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BookCopy, BookmarkPlus, BookmarkX, ChevronLeft, ChevronRight, Download, LifeBuoy, PanelLeftClose, PanelLeftOpen, RotateCcw, Volume2, VolumeX } from "lucide-react";
+import { BookCopy, BookmarkPlus, BookmarkX, Eye, EyeOff, ChevronLeft, ChevronRight, Download, LifeBuoy, PanelLeftClose, PanelLeftOpen, RotateCcw, Volume2, VolumeX } from "lucide-react";
 import { Book3D, DEFAULT_VIEW, useView } from "./book/Book3D";
 import { FlatBook } from "./book/FlatBook";
 import { ToolPanel } from "./book/Tools";
@@ -12,7 +12,7 @@ import { useHydrated } from "@/lib/useHydrated";
 import { useSettings } from "@/lib/hooks";
 import { redo, undo, useSyncState } from "@/lib/client-store";
 import { goSpread, useSpread, useTool } from "@/lib/book";
-import { useShared } from "@/lib/shared";
+import { getShared, setShared, useShared } from "@/lib/shared";
 import { play, preloadSfx, setMuted, typeTick, useMuted } from "@/lib/sfx";
 
 const SYNC_LABEL: Record<string, string> = {
@@ -81,7 +81,7 @@ export function BookApp() {
   const hydrated = useHydrated();
   const { w, h } = useWindowSize();
   const [settings] = useSettings();
-  const [sos, setSos] = useState(false);
+  const [sos, setSos] = useShared("sos:open", false);
   const [toolsOpen] = useShared("desk:tools", true);
 
   useEffect(() => {
@@ -112,6 +112,9 @@ export function BookApp() {
         return;
       }
       if (!mod && e.key.length === 1 && t.closest(".page-content") && t.matches("input, textarea")) typeTick();
+      if (!mod && (e.key === "h" || e.key === "H") && !t.closest("input, textarea, select, [contenteditable]")) {
+        setShared("desk:clean", !getShared("desk:clean", false));
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => {
@@ -140,10 +143,18 @@ function Desk({ onSos, pw, ph, side }: { onSos: () => void; pw: number; ph: numb
   const [, setView] = useView();
   const [tool, setTool] = useTool();
   const [toolsOpen, setToolsOpen] = useShared("desk:tools", true);
+  const [clean, setClean] = useShared("desk:clean", false);
   const closed = cur < 0;
+  const closedBack = cur > LAST;
+  const shut = closed || closedBack;
 
   return (
-    <div className="desk3d" data-tool={tool}>
+    <div className="desk3d" data-tool={tool} data-clean={clean || undefined}>
+      {clean && (
+        <button className="unclean" onClick={() => setClean(false)} title="Mostrar la interfaz (H)" aria-label="Mostrar la interfaz">
+          <Eye aria-hidden />
+        </button>
+      )}
       <div className="desk-top">
         <span />
         <div className="desk-actions">
@@ -165,14 +176,14 @@ function Desk({ onSos, pw, ph, side }: { onSos: () => void; pw: number; ph: numb
       </div>
 
       <nav className="desk-bar" aria-label="Controles del cuaderno">
-        <button onClick={() => goSpread(closed ? 1 : -1)}>
-          <BookCopy aria-hidden /> {closed ? "Abrir" : "Cerrar"}
+        <button onClick={() => goSpread(closed ? 1 : closedBack ? LAST : -1)}>
+          <BookCopy aria-hidden /> {shut ? "Abrir" : "Cerrar"}
         </button>
         <button onClick={() => goSpread(Math.max(-1, cur - 1))} aria-label="Hoja anterior" disabled={closed}>
           <ChevronLeft aria-hidden />
         </button>
-        <span className="desk-where">{closed ? "Portada" : SPREAD_LIST[cur]?.label}</span>
-        <button onClick={() => goSpread(Math.min(LAST, cur + 1))} aria-label="Hoja siguiente" disabled={cur >= LAST}>
+        <span className="desk-where">{closed ? "Portada" : closedBack ? "Contraportada" : SPREAD_LIST[cur]?.label}</span>
+        <button onClick={() => goSpread(Math.min(LAST + 1, cur + 1))} aria-label={cur === LAST ? "Cerrar por detrás" : "Hoja siguiente"} title={cur === LAST ? "Cerrar por detrás" : undefined} disabled={cur > LAST}>
           <ChevronRight aria-hidden />
         </button>
         <button
@@ -188,8 +199,17 @@ function Desk({ onSos, pw, ph, side }: { onSos: () => void; pw: number; ph: numb
         <button onClick={() => setView(DEFAULT_VIEW)} title="Arrastra el escritorio para girar el cuaderno; la rueda acerca y aleja">
           <RotateCcw aria-hidden /> Vista
         </button>
-        {!closed && <RibbonButton cur={cur} />}
+        {!shut && <RibbonButton cur={cur} />}
         <SoundToggle />
+        <button
+          onClick={() => {
+            setTool("none");
+            setClean(true);
+          }}
+          title="Ocultar toda la interfaz y dejar solo el cuaderno (H)"
+        >
+          <EyeOff aria-hidden /> Limpiar
+        </button>
         <a href="/api/backup" download>
           <Download aria-hidden /> Copia
         </a>

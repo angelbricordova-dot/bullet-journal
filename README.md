@@ -8,7 +8,9 @@ Un cuaderno de cuero con anillas de latón, en 3D. En PC:
 
 - La **portada** siempre muestra el mes, los días que quedan y el día del año. Tócala para abrir.
 - **Pasa las hojas** arrastrando la esquina, con las pestañas de cada hoja, con las flechas del teclado o con los botones de abajo.
-- **Arrastra el escritorio** con el botón izquierdo para girar el cuaderno, con el **derecho** para moverlo de lugar, y usa la **rueda** para acercar o alejar. "Vista" lo endereza.
+- **Arrastra el escritorio** con el botón izquierdo para girar el cuaderno 360° en cualquier dirección, con el **derecho** para moverlo de lugar, y usa la **rueda** para acercar o alejar. "Vista" lo endereza.
+- Al final, la **tapa trasera** se cierra sobre las hojas (botón ›, flecha → o arrastrando el borde). Tócala para volver a abrir.
+- **Limpiar** (o la tecla **H**) oculta toda la interfaz y deja solo el cuaderno; el ojo de la esquina la trae de vuelta.
 - A la izquierda están las **herramientas** (se ocultan con un botón): pluma, lápiz y resaltador con colores y grosores; línea, flecha, rectángulo y círculo; texto; nota adhesiva; **cinta** que estiras sobre la página (kraft, negra, tela roja, lino, mate); fotos y borrador. Todo funciona en cualquier página o en la portada, y se mueve, gira, agranda y despega.
 - **Ctrl+Z** deshace y **Ctrl+Shift+Z** (o Ctrl+Y) rehace.
 - **Sonidos** de papel y cuero al pasar hojas, abrir y cerrar, escribir, dibujar, borrar, pegar cinta y marcar como hecho. Se silencian con el botón "Sonido".
@@ -32,7 +34,7 @@ En el teléfono es una página a la vez, con las mismas secciones y las herramie
 | **Resumen** | El mes en números, tu resumen y "Mirando atrás": lo que aprendiste, lo que agradeces y lo que viene. |
 | **Ajustes** | Color del cuero, letra, papel, mostrar u ocultar indicaciones, hábitos, razones, fechas, copia de seguridad y "Empezar de cero" (borra todo tras escribir BORRAR). |
 
-**Momento difícil** está siempre arriba a la derecha: versículo, tus razones, acciones y temporizador de 10 minutos.
+**Momento difícil** está arriba a la derecha y en la página de Pureza: versículo, tus razones, acciones y temporizador de 10 minutos.
 
 ## Publicar en Vercel
 

@@ -27,3 +27,7 @@ export function useShared<T>(key: string, initial: T): [T, (v: T) => void] {
   );
   return [value, useCallback((v: T) => setShared(key, v), [key])];
 }
+
+export function getShared<T>(key: string, initial: T): T {
+  return values.has(key) ? (values.get(key) as T) : initial;
+}

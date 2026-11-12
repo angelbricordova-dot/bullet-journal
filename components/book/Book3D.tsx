@@ -4,7 +4,7 @@ import { memo, useEffect, useLayoutEffect, useRef, useState, type CSSProperties,
 import { FaceCtx } from "../Pages";
 import { SPREAD_LIST } from "./spreads";
 import { SPREAD_COMPONENTS } from "./registry";
-import { CoverFront } from "./Cover";
+import { BackCover, CoverFront } from "./Cover";
 import { goSpread, useSpread, useTool } from "@/lib/book";
 import { useShared } from "@/lib/shared";
 import { drag as dragPointer } from "@/lib/drag";
@@ -88,6 +88,8 @@ export function Book3D({ pw, ph, offsetX = 0 }: { pw: number; ph: number; offset
   const [instantLeaf, setInstantLeaf] = useState<number | null>(null);
   const [panning, setPanning] = useState(false);
   const closed = cur < 0;
+  const closedBack = cur > LAST; // shut from the back, after the last page
+  const shut = closed || closedBack;
   const ribbon = useRibbon();
 
   const leafEl = (j: number) => bookRef.current?.querySelector<HTMLElement>(`[data-leaf="${j}"]`) ?? null;
@@ -116,8 +118,8 @@ export function Book3D({ pw, ph, offsetX = 0 }: { pw: number; ph: number; offset
     prev.current = cur;
 
     // sounds and the paper curl
-    if (was < 0 && cur >= 0) play("book-open");
-    else if (cur < 0) play("book-close");
+    if ((was < 0 && cur >= 0) || (was > LAST && cur <= LAST)) play("book-open");
+    else if (cur < 0 || cur > LAST) play("book-close");
     const step = cur - was;
     const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (skipCurl.current === cur) {
@@ -153,7 +155,7 @@ export function Book3D({ pw, ph, offsetX = 0 }: { pw: number; ph: number; offset
     const onKey = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement;
       if (t.closest("input, textarea, select, [contenteditable]")) return;
-      if (e.key === "ArrowRight" || e.key === "PageDown") goSpread(Math.min(LAST, cur + 1));
+      if (e.key === "ArrowRight" || e.key === "PageDown") goSpread(Math.min(LAST + 1, cur + 1));
       if (e.key === "ArrowLeft" || e.key === "PageUp") goSpread(Math.max(-1, cur - 1));
     };
     window.addEventListener("keydown", onKey);
@@ -205,8 +207,8 @@ export function Book3D({ pw, ph, offsetX = 0 }: { pw: number; ph: number; offset
       (_ev, dx, dy) =>
         setView({
           ...v0,
-          ry: Math.max(-55, Math.min(55, v0.ry + dx * 0.22)),
-          rx: Math.max(-5, Math.min(60, v0.rx - dy * 0.22)),
+          ry: v0.ry + dx * 0.3,
+          rx: v0.rx - dy * 0.3,
         }),
       undefined,
       5,
@@ -219,7 +221,7 @@ export function Book3D({ pw, ph, offsetX = 0 }: { pw: number; ph: number; offset
     e.preventDefault();
     e.stopPropagation();
     const leaf = dir === "fwd" ? cur : cur - 1;
-    if (leaf < -1 || leaf >= LEAVES) return;
+    if (leaf < -1 || leaf > LEAVES) return;
     const spine = spineRef.current!.getBoundingClientRect();
     const sx = spine.left + spine.width / 2;
     const pwScreen = pw * view.zoom * Math.cos((view.ry * Math.PI) / 180);
@@ -285,6 +287,8 @@ export function Book3D({ pw, ph, offsetX = 0 }: { pw: number; ph: number; offset
     };
   };
 
+  const backAngle = drag?.leaf === LEAVES ? drag.angle : closedBack ? -180 : 0;
+  const backZ = backAngle <= -90 ? -22 : -3;
   const coverAngle = drag?.leaf === -1 ? drag.angle : closed ? 0 : -180;
   const coverZ = coverAngle <= -90 ? -STEP : 22;
 
@@ -299,7 +303,7 @@ export function Book3D({ pw, ph, offsetX = 0 }: { pw: number; ph: number; offset
   };
 
   const leftCount = Math.max(0, cur);
-  const rightCount = LEAVES - Math.max(0, cur);
+  const rightCount = Math.max(0, LEAVES - Math.max(0, cur));
 
   return (
     <div
@@ -312,21 +316,29 @@ export function Book3D({ pw, ph, offsetX = 0 }: { pw: number; ph: number; offset
       }}
       data-desk="1"
     >
-      <div className={styles.pos} style={{ transform: `translate(${offsetX + (view.px ?? 0) + (closed ? -pw / 2 : 0)}px, ${view.py ?? 0}px)`, transition: panning ? "none" : undefined }} data-desk="1">
-      <div ref={bookRef} className={styles.book} style={bookStyle} data-closed={closed || undefined} data-spread={cur}>
-        <div className={styles.backCover} />
+      <div className={styles.pos} style={{ transform: `translate(${offsetX + (view.px ?? 0) + (closed ? -pw / 2 : closedBack ? pw / 2 : 0)}px, ${view.py ?? 0}px)`, transition: panning ? "none" : undefined }} data-desk="1">
+      <div ref={bookRef} className={styles.book} style={bookStyle} data-closed={shut || undefined} data-closed-back={closedBack || undefined} data-spread={cur}>
         <div className={styles.spine} ref={spineRef} />
         {/* the spine: the leather back that joins both covers; it stands up when the book is shut */}
-        <div className={styles.spineBack} data-closed={closed || undefined} aria-hidden>
+        <div className={styles.spineBack} data-closed={shut || undefined} aria-hidden>
           <span className={styles.spineBand} />
           <span className={styles.spineTitle}>Bitácora</span>
           <span className={styles.spineBand} />
         </div>
 
-        {/* paper glued inside the back cover: the last spread's right page */}
-        <div className={styles.base} style={{ boxShadow: stackShadow(rightCount) }}>
-          <Face spread={LAST} side="right" active={cur === LAST} render={visible(LAST)} />
-          <Tab index={LAST} />
+        {/* back cover: leather outside, the last right page glued inside; it closes over the pages at the end */}
+        <div
+          className={styles.backLeaf}
+          style={{ transform: `rotateY(${backAngle}deg) translateZ(${backZ}px)`, transition: drag?.leaf === LEAVES ? "none" : undefined }}
+        >
+          <div className={styles.backIn} />
+          <div className={styles.backOut} inert={!closedBack || undefined} onClick={() => closedBack && goSpread(LAST)}>
+            <BackCover />
+          </div>
+          <div className={styles.base} style={{ boxShadow: stackShadow(rightCount) }}>
+            <Face spread={LAST} side="right" active={cur === LAST && !drag} render={visible(LAST)} />
+            <Tab index={LAST} />
+          </div>
         </div>
         {leftCount > 0 && <div className={styles.leftStack} style={{ boxShadow: stackShadow(leftCount, true) }} />}
 
@@ -357,11 +369,11 @@ export function Book3D({ pw, ph, offsetX = 0 }: { pw: number; ph: number; offset
 
         <Rings ph={ph} />
 
-        {!closed && cur < LEAVES && <div className={`${styles.grab} ${styles.grabR}`} onPointerDown={(e) => onGrab(e, "fwd")} title="Arrastra para pasar la hoja" />}
-        {!closed && cur >= 0 && <div className={`${styles.grab} ${styles.grabL}`} onPointerDown={(e) => onGrab(e, "back")} title="Arrastra para volver" />}
+        {!shut && <div className={`${styles.grab} ${styles.grabR}`} onPointerDown={(e) => onGrab(e, "fwd")} title="Arrastra para pasar la hoja" />}
+        {!closed && cur >= 0 && <div className={`${styles.grab} ${styles.grabL}`} data-back-shut={closedBack || undefined} onPointerDown={(e) => onGrab(e, "back")} title="Arrastra para volver" />}
         <button
           className={styles.ribbon}
-          data-state={ribbon === null ? "off" : !closed && cur === ribbon ? "full" : "tail"}
+          data-state={ribbon === null || closedBack ? "off" : !closed && cur === ribbon ? "full" : "tail"}
           onClick={() => ribbon !== null && cur !== ribbon && goSpread(ribbon)}
           onPointerDown={(e) => e.stopPropagation()}
           tabIndex={ribbon !== null && cur !== ribbon ? 0 : -1}
