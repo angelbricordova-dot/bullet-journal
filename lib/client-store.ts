@@ -55,6 +55,9 @@ function subscribe(key: string, cb: () => void) {
   return () => set!.delete(cb);
 }
 
+/** Keys the server confirmed it doesn't have (a fresh or wiped notebook). */
+const missing = new Set<string>();
+
 async function load(key: string) {
   if (inflight.has(key)) return inflight.get(key);
   const p = (async () => {
@@ -70,6 +73,8 @@ async function load(key: string) {
       const e = entries.get(key);
       if (e?.dirty) return; // a local edit is pending; it will win
       const value = json.value ?? e?.value;
+      if (json.value === null && e?.value === undefined) missing.add(key);
+      else missing.delete(key);
       entries.set(key, { value, loaded: true, dirty: false });
       if (json.value !== null) lsSet(key, json.value);
       emit(key);
@@ -194,6 +199,21 @@ export function useHistory() {
 
 export function writeDoc<T>(key: string, value: T) {
   record(key, entries.get(key)?.value, value);
+  entries.set(key, { value, loaded: true, dirty: true });
+  lsSet(key, value);
+  emit(key);
+  schedule(key);
+}
+
+/**
+ * Write a first version of a document the server doesn't have yet — e.g. the
+ * settings of a notebook that was just started from zero. Not undoable.
+ */
+export function seedDoc<T>(key: string, make: () => T) {
+  const e = entries.get(key);
+  if (!missing.has(key) || !e?.loaded || e.dirty || e.value !== undefined) return;
+  missing.delete(key);
+  const value = make();
   entries.set(key, { value, loaded: true, dirty: true });
   lsSet(key, value);
   emit(key);

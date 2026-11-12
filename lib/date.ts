@@ -13,6 +13,12 @@ export function todayYmd(): string {
   return ymd(new Date());
 }
 
+/** Local date and time, e.g. 2026-11-12T21:40:05 (no zone, like the rest of the app). */
+export function nowLocal(): string {
+  const d = new Date();
+  return `${ymd(d)}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+
 export function addDays(s: string, n: number): string {
   const d = parseYmd(s);
   d.setDate(d.getDate() + n);

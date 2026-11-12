@@ -333,3 +333,15 @@
   outline: 2px solid var(--brass);
   outline-offset: 3px;
 }
+
+.startToday {
+  justify-self: start;
+  margin-top: 2px;
+  padding: 2px 0;
+  border: 0;
+  background: transparent;
+  font-size: 0.8125rem;
+  color: var(--vermilion);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

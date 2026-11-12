@@ -2,6 +2,15 @@ import type { Challenge, DayDoc, Settings } from "./types";
 
 export const START_DATE = "2026-11-11";
 
+/** A notebook started today: day 1 of the change is today. */
+export function freshSettings(today: string): Settings {
+  return { ...DEFAULT_SETTINGS, startDate: today };
+}
+
+export function freshChallenges(today: string, now: string): Challenge[] {
+  return DEFAULT_CHALLENGES.map((c) => ({ ...c, start: c.kind === "abstain" ? now : today, falls: [], wins: [], cells: undefined }));
+}
+
 export const DEFAULT_SETTINGS: Settings = {
   owner: "Alejandro Gabriel Lamont Bencomo",
   initials: "A. G. L. B.",

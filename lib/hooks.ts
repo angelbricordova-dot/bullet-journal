@@ -1,11 +1,17 @@
 "use client";
 
-import { useDoc } from "./client-store";
-import { DEFAULT_CHALLENGES, DEFAULT_SETTINGS, emptyDay } from "./defaults";
+import { useEffect } from "react";
+import { seedDoc, useDoc } from "./client-store";
+import { DEFAULT_CHALLENGES, DEFAULT_SETTINGS, emptyDay, freshChallenges, freshSettings } from "./defaults";
+import { nowLocal, todayYmd } from "./date";
 import type { Challenge, DayDoc, Prayer, Settings } from "./types";
 
 export function useSettings() {
   const [raw, set, loaded] = useDoc<Settings>("settings", DEFAULT_SETTINGS);
+  // a brand-new (or just wiped) notebook starts its count today
+  useEffect(() => {
+    if (loaded) seedDoc("settings", () => freshSettings(todayYmd()));
+  }, [loaded]);
   const settings: Settings = { ...DEFAULT_SETTINGS, ...raw };
   return [settings, set, loaded] as const;
 }
@@ -17,7 +23,12 @@ export function useDay(date: string) {
 }
 
 export function useChallenges() {
-  return useDoc<Challenge[]>("challenges", DEFAULT_CHALLENGES);
+  const doc = useDoc<Challenge[]>("challenges", DEFAULT_CHALLENGES);
+  const loaded = doc[2];
+  useEffect(() => {
+    if (loaded) seedDoc("challenges", () => freshChallenges(todayYmd(), nowLocal()));
+  }, [loaded]);
+  return doc;
 }
 
 export function usePrayers() {

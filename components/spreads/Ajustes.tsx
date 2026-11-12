@@ -5,7 +5,8 @@ import { ArrowDown, ArrowUp, Download, Eraser, LogOut, Plus, Trash2, Upload } fr
 import { Pages } from "@/components/Pages";
 import { useSettings } from "@/lib/hooks";
 import { flushAll } from "@/lib/client-store";
-import { uid } from "@/lib/date";
+import { nowLocal, todayYmd, uid } from "@/lib/date";
+import { freshChallenges, freshSettings } from "@/lib/defaults";
 import type { CoverColor, FontSet, Habit, PaperStyle, Settings } from "@/lib/types";
 import type { ThemeChoice } from "@/lib/theme";
 import styles from "./ajustes.module.css";
@@ -136,6 +137,11 @@ export function AjustesSpread() {
         <label className="field">
           <span>Día 1 del cambio</span>
           <input className="box-input num" type="date" value={s.startDate} onChange={(e) => e.target.value && set({ startDate: e.target.value })} />
+          {s.startDate !== todayYmd() && (
+            <button type="button" className={styles.startToday} onClick={() => set({ startDate: todayYmd() })}>
+              Empezar hoy
+            </button>
+          )}
         </label>
       </div>
 
@@ -169,6 +175,10 @@ export function AjustesSpread() {
               setMsg("No se pudo borrar. Inténtalo de nuevo.");
               return;
             }
+            // the new notebook starts now: day 1 is today, the challenges begin at this moment
+            const put = (key: string, value: unknown) =>
+              fetch("/api/data", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ key, value }) });
+            await Promise.all([put("settings", freshSettings(todayYmd())), put("challenges", freshChallenges(todayYmd(), nowLocal()))]).catch(() => {});
             try {
               Object.keys(localStorage).filter((k) => k.startsWith("bitacora:")).forEach((k) => localStorage.removeItem(k));
             } catch {}
