@@ -1,5 +1,6 @@
 "use client";
 
+import { InkLine } from "@/components/InkLine";
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, Plus, Trash2 } from "lucide-react";
 import { Pages } from "@/components/Pages";
@@ -106,11 +107,10 @@ export function MesSpread() {
               label={g.text}
               onToggle={() => setDoc((d) => ({ ...emptyMonth(), ...d, goals: d.goals.map((x) => (x.id === g.id ? { ...x, done: !x.done } : x)) }))}
             />
-            <input
-              className="ink-input"
+            <InkLine
               value={g.text}
               data-done={g.done || undefined}
-              onChange={(e) => setDoc((d) => ({ ...emptyMonth(), ...d, goals: d.goals.map((x) => (x.id === g.id ? { ...x, text: e.target.value } : x)) }))}
+              onValue={(v) => setDoc((d) => ({ ...emptyMonth(), ...d, goals: d.goals.map((x) => (x.id === g.id ? { ...x, text: v } : x)) }))}
               aria-label="Meta"
             />
             <button className="icon-btn" onClick={() => setDoc((d) => ({ ...emptyMonth(), ...d, goals: d.goals.filter((x) => x.id !== g.id) }))} aria-label="Borrar meta">

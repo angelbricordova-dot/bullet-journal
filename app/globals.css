@@ -726,3 +726,33 @@ textarea.box-input {
   animation-duration: 420ms;
   animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
 }
+
+/* a written entry that wraps down onto the next ruled line */
+.ink-line {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  resize: none;
+  overflow: hidden;
+  background: transparent;
+  border: 0;
+  outline: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  font-size: 1rem;
+  line-height: var(--line);
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.ink-line::placeholder {
+  color: var(--ink-3);
+}
+
+/* inside the 3D book a button that moves on press loses its click
+   (the browser re-hit-tests it behind the page); press by shading instead */
+.page-content .ink-btn:active,
+.page-content .brass-btn:active {
+  transform: none;
+  filter: brightness(0.9);
+}

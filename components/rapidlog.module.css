@@ -17,7 +17,17 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  height: var(--line);
+  min-height: var(--line);
+}
+/* a long entry wraps onto the next ruled line; marks stay on the first */
+.item:has(> textarea) {
+  align-items: flex-start;
+}
+.item:has(> textarea) > :not(textarea) {
+  margin-top: calc((var(--line) - 20px) / 2);
+}
+.item:has(> textarea) > .act {
+  margin-top: calc((var(--line) - 28px) / 2);
 }
 .box {
   flex: none;
@@ -34,7 +44,8 @@
   background: rgba(28, 35, 51, 0.06);
 }
 .box:active {
-  transform: scale(0.9);
+  /* no transform: inside the 3D book a moving target loses the click */
+  background: color-mix(in oklab, var(--ink) 12%, transparent);
 }
 .box svg {
   position: absolute;

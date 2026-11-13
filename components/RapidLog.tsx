@@ -1,5 +1,6 @@
 "use client";
 
+import { InkLine } from "./InkLine";
 import { useRef, useState } from "react";
 import { CornerDownRight, Plus, Trash2 } from "lucide-react";
 import type { Bullet, BulletKind, BulletState } from "@/lib/types";
@@ -28,7 +29,7 @@ export function RapidLog({
   onMigrate: (b: Bullet) => void;
 }) {
   const [draft, setDraft] = useState("");
-  const refs = useRef<Record<string, HTMLInputElement | null>>({});
+  const refs = useRef<Record<string, HTMLTextAreaElement | null>>({});
   const newRef = useRef<HTMLInputElement>(null);
 
   const open = items.filter((b) => b.kind === "task" && b.state === "open").length;
@@ -88,18 +89,15 @@ export function RapidLog({
                   <Glyph kind={b.kind} state={b.state} />
                 </span>
               )}
-              <input
+              <InkLine
                 ref={(el) => {
                   refs.current[b.id] = el;
                 }}
                 className={styles.text}
                 value={b.text}
-                onChange={(e) => update(b.id, { text: e.target.value })}
+                onValue={(v) => update(b.id, { text: v })}
+                onEnter={() => newRef.current?.focus()}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    newRef.current?.focus();
-                  }
                   if (e.key === "Backspace" && b.text === "") {
                     e.preventDefault();
                     remove(b.id, true);

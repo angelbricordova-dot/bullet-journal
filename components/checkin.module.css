@@ -44,9 +44,7 @@
   padding-left: 22px;
 }
 .gratitude li {
-  height: var(--line);
-  display: flex;
-  align-items: center;
+  min-height: var(--line);
 }
 .gratitude li::marker {
   font-family: var(--font-engraved);
@@ -65,5 +63,5 @@
 }
 .reading {
   width: 100%;
-  height: var(--line);
+  min-height: var(--line);
 }

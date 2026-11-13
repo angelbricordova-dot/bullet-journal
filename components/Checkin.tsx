@@ -1,5 +1,6 @@
 "use client";
 
+import { InkLine } from "./InkLine";
 import { useDay } from "@/lib/hooks";
 import { emptyDay } from "@/lib/defaults";
 import { shortDate, todayYmd } from "@/lib/date";
@@ -69,10 +70,10 @@ export function GratitudeReading({ date }: { date: string }) {
         <h3 className="h-sec">Lectura bíblica</h3>
         <DateTag date={date} />
       </div>
-      <input
-        className={`ink-input ruled ${styles.reading}`}
+      <InkLine
+        className={`ruled ${styles.reading}`}
         value={day.reading ?? ""}
-        onChange={(e) => patch({ reading: e.target.value })}
+        onValue={(v) => patch({ reading: v })}
         placeholder="Ej. Proverbios 4"
         aria-label="Lectura bíblica del día"
       />
@@ -83,14 +84,14 @@ export function GratitudeReading({ date }: { date: string }) {
       <ol className={`ruled ${styles.gratitude}`}>
         {[0, 1, 2].map((i) => (
           <li key={i}>
-            <input
-              className="ink-input"
+            <InkLine
               value={day.gratitude[i] ?? ""}
-              onChange={(e) => {
+              onValue={(v) => {
                 const g = [...day.gratitude];
-                g[i] = e.target.value;
+                g[i] = v;
                 patch({ gratitude: g });
               }}
+              onEnter={() => (document.querySelector(`[aria-label="Gratitud ${i + 2}"]`) as HTMLElement | null)?.focus()}
               placeholder={i === 0 ? "Hoy doy gracias por…" : ""}
               aria-label={`Gratitud ${i + 1}`}
             />
